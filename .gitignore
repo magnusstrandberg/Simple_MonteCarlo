@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/Simple MonteCarlo/Simple MonteCarlo/x64/Debug
+/Simple MonteCarlo/x64/Debug
+/Simple MonteCarlo/.vs/Simple MonteCarlo/v15/ipch/AutoPCH
+/Simple MonteCarlo/.vs/Simple MonteCarlo/v15/Browse.VC.opendb
