@@ -19,16 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="coin.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
+    <ClCompile Include="statistics.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="coin.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="statistics.h" />
     <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
