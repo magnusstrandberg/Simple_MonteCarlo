@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
+    <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -28,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="Input.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Simple MonteCarlo.rc" />

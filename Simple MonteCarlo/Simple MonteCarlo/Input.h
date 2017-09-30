@@ -5,7 +5,7 @@
 class Input
 {
 public:
-	int N, M;
+	int N, M, Needle, Coin;
 	std::string input_location;
 	Input (const std::string);
 	~Input ();
@@ -13,6 +13,7 @@ public:
 	void dataParser(const std::string);
 	void createDataSet(const std::string, const std::string);
 	void printData();
+	int checkInputCompletness();
 };
 
 
