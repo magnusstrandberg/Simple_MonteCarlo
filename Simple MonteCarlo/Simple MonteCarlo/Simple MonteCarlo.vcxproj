@@ -21,8 +21,9 @@
   <ItemGroup>
     <ClCompile Include="coin.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="needle.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
-    <ClCompile Include="statistics.cpp" />
+    <ClCompile Include="stat.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,8 +32,9 @@
   <ItemGroup>
     <ClInclude Include="coin.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="needle.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="statistics.h" />
+    <ClInclude Include="stat.h" />
     <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
+    <Text Include="log.txt" />
+    <Text Include="read.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -107,7 +111,11 @@
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -1,0 +1,2 @@
+N;coinMean;coinStdD;coinFOM;coinT;needleMean;needleStdD;needleFOM,needleT;
+1000;3.1432;0.0499312;6915.58;0.058;3.16163;0.0930489;3725.76;0.031;

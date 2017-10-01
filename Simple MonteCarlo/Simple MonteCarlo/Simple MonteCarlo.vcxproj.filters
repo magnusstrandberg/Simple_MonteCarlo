@@ -27,7 +27,10 @@
     <ClCompile Include="coin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="statistics.cpp">
+    <ClCompile Include="stat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="needle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +50,10 @@
     <ClInclude Include="coin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="statistics.h">
+    <ClInclude Include="stat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="needle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -58,6 +64,12 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="log.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="read.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

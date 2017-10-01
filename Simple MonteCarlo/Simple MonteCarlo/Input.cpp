@@ -9,10 +9,7 @@ using namespace std;
 
 Input::Input(const std::string input)
 {
-	N = -999;
-	M = -999;
-	Needle = -999; 
-	Coin = -999;
+	defaultValues();
 	input_location = input;
 	fileReader(input_location);
 }
@@ -21,6 +18,16 @@ Input::Input(const std::string input)
 Input::~Input()
 {
 }
+
+void Input::defaultValues() {
+	N = -999;
+	M = -999;
+	Needle = -999;
+	Coin = -999;
+	l = -999;
+	L = -999;
+}
+
 
 void Input::fileReader(const std::string filelocation)
 {
@@ -80,7 +87,12 @@ void Input::createDataSet(const std::string para, const std::string value)
 	if (para == "Coin") {
 		Coin = stoi(value);
 	}
-	
+	if (para == "L") {
+		L = stod(value);
+	}
+	if (para == "l") {
+		l = stod(value);
+	}
 	return;
 
 }
@@ -97,5 +109,7 @@ int Input::checkInputCompletness()
 	if (M == -999) {return 1;}
 	if (Needle == -999) { return 1; }
 	if (Coin == -999) { return 1; }
+	if (L == -999) { return 1; }
+	if (l == -999) { return 1; }
 	return 0;
 }

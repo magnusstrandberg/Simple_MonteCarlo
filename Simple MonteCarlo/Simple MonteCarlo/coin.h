@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "Input.h"
-#include "statistics.h"
+#include "stat.h"
 
 class coin
 {
@@ -11,13 +11,17 @@ class coin
 	double * ratio;
 	double  mean;
 	double  stddiv;
+	double fom;
 public:
 	coin(Input);
 	~coin();
 
 	void flipflip();
 	double Timed();
+	double Mean();
+	double StdDiviation();
 	double flipNtimes();
+	double FOM();
 
 };
 

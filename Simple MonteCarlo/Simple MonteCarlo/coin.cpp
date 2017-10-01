@@ -1,6 +1,6 @@
 #include "coin.h"
 #include "Input.h"
-#include "statistics.h"
+#include "stat.h"
 #include "timer.h"
 #include <cmath>
 #include <math.h>
@@ -27,15 +27,14 @@ void coin::flipflip()
 	ratio = new double[input_data.M];
 	timer t;
 	t.startTime();
-	double sum=0.0;
 	for (int i = 0; i < input_data.M; i++) {
 		ratio[i] = flipNtimes();
-		//cout << ratio[i] << "\n";
-		sum += ratio[i];
 	}
-	mean = sum/input_data.M;
 	T = t.calcStop();
-	cout << mean<<"\n";
+	mean = getMean(ratio, input_data.M);
+	stddiv = getStddiv(ratio, mean, input_data.M);
+	fom = getFOM(stddiv, T);
+	
 }
 
 double coin::Timed()
@@ -43,21 +42,44 @@ double coin::Timed()
 	return T;
 }
 
+double coin::Mean()
+{
+	return mean;
+}
+
+double coin::StdDiviation()
+{
+	return stddiv;
+}
+
 double coin::flipNtimes(){
 	int incircle = 0;
+	double * tmp;
+	tmp = new double[input_data.N];
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic,1)
 	for (int i = 0; i < input_data.N; i++)
 	{
 		double x = dis(gen);
 		double y = dis(gen);
-		if(sqrt(pow(x,2)+pow(y,2)) <= 1){
-			incircle += 1;
-			}
+		tmp[i] = sqrt(pow(x,2) + pow(y,2));
 	}
-	double ratio = 4*(double)incircle /(double)input_data.N;
+	for (int i = 0; i < input_data.N; i++)
+	{
+		if (tmp[i] < 1)
+		{
+			incircle += 1;
+		}
+	}
+	delete[] tmp;
+	double ratio = (4 * (double)incircle )/(double)input_data.N;
 
 	return ratio;
+}
+
+double coin::FOM()
+{
+	return fom;
 }
