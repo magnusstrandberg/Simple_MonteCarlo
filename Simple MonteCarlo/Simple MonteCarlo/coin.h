@@ -12,6 +12,7 @@ class coin
 	double  mean;
 	double  stddiv;
 	double fom;
+	double AValue;
 public:
 	coin(Input);
 	~coin();
@@ -22,6 +23,8 @@ public:
 	double StdDiviation();
 	double flipNtimes();
 	double FOM();
+
+	double A();
 
 };
 

@@ -12,6 +12,8 @@ class needle
 	double  mean;
 	double  stddiv;
 	double fom;
+	double AValue;
+
 public:
 	needle(Input);
 	~needle();
@@ -22,5 +24,7 @@ public:
 	double StdDiviation();
 	double throwNtimes();
 	double FOM();
+
+	double A();
 
 };

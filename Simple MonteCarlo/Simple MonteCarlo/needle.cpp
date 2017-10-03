@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <random>
+#include <fstream>
 
 using namespace std;
 
@@ -40,6 +41,16 @@ void needle::throwthrow()
 	mean = getMean(ratio, input_data.M);
 	stddiv = getStddiv(ratio, mean, input_data.M);
 	fom = getFOM(stddiv, T);
+	AValue = AndersonDarlingTest(ratio, input_data.M, mean, stddiv);
+	
+	ofstream dat;
+	dat.open("data.txt", ios::out);
+	for (int i = 0; i < input_data.M; i++)
+	{
+		dat << ratio[i] << "\n";
+	}
+
+	dat.close();
 }
 
 
@@ -135,4 +146,9 @@ double needle::StdDiviation()
 double needle::FOM()
 {
 	return fom;
+}
+
+double needle::A()
+{
+	return AValue;
 }

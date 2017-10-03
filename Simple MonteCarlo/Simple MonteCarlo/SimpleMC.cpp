@@ -28,6 +28,7 @@ int main() {
 	log << "Standard diviation: "<< coin_flip.StdDiviation() << "\n";
 	log << "Figure of merit: " << coin_flip.FOM() << "\n";
 	log << "Time to calculate: "<< coin_flip.Timed() << "s \n";
+	log << "A value:" << coin_flip.A() << "\n";
 
 	needle needle_toss(input_data);
 	needle_toss.throwthrow();
@@ -39,6 +40,7 @@ int main() {
 	log << "Standard diviation: " << needle_toss.StdDiviation() << "\n";
 	log << "Figure of merit: " << needle_toss.FOM() << "\n";
 	log << "Time to calculate: " << needle_toss.Timed() << "s \n";
+	log << "A value:" << needle_toss.A() << "\n";
 	log.close();
 	ofstream mat;
 	mat.open("log.txt", ios::out | ios::app);

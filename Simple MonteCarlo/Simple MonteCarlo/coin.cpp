@@ -34,6 +34,7 @@ void coin::flipflip()
 	mean = getMean(ratio, input_data.M);
 	stddiv = getStddiv(ratio, mean, input_data.M);
 	fom = getFOM(stddiv, T);
+	AValue = AndersonDarlingTest(ratio, input_data.M, mean, stddiv);
 	
 }
 
@@ -82,4 +83,9 @@ double coin::flipNtimes(){
 double coin::FOM()
 {
 	return fom;
+}
+
+double coin::A()
+{
+	return AValue;
 }
