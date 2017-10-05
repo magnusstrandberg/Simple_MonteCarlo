@@ -339,3 +339,57 @@ Standard diviation: 0.0769389
 Figure of merit: 6256.68
 Time to calculate: 0.027s 
 A value:0.260026
+*************************
+N: 1000
+M: 100
+Calculating Pi with the coin toss method
+Mean Pi value: 3.13628
+Standard diviation: 0.0542948
+Figure of merit: 5471.32
+Time to calculate: 0.062s 
+A value:0.517894
+
+Calculating Pi with the Buffon's needle method
+l: 1
+L: 1
+Mean Pi value: 3.1439
+Standard diviation: 0.066885
+Figure of merit: 8941.34
+Time to calculate: 0.025s 
+A value:0.151251
+*************************
+N: 1000
+M: 100
+Calculating Pi with the coin toss method
+Mean Pi value: 3.13896
+Standard diviation: 0.0544136
+Figure of merit: 6622.4
+Time to calculate: 0.051s 
+A value:0.38025
+
+Calculating Pi with the Buffon's needle method
+l: 1
+L: 1
+Mean Pi value: 3.14159
+Standard diviation: 0.0739056
+Figure of merit: 5721.3
+Time to calculate: 0.032s 
+A value:0.521023
+*************************
+N: 1000
+M: 100
+Calculating Pi with the coin toss method
+Mean Pi value: 3.13092
+Standard diviation: 0.0524011
+Figure of merit: 7587.14
+Time to calculate: 0.048s 
+A value:1
+
+Calculating Pi with the Buffon's needle method
+l: 1
+L: 1
+Mean Pi value: 3.13475
+Standard diviation: 0.0713926
+Figure of merit: 6328.96
+Time to calculate: 0.031s 
+A value:1

@@ -43,15 +43,15 @@ double giveCFD(double value)
 	return 0.5*erfc(-value/sqrt(2));
 }
 
-double AndersonDarlingTest(const double sample[], const int M, const double mean, const double stddiv) 
+double AndersonDarlingTest(const double sample[], const int M, const double mean, const double stddiv)
 {
 	//Need to make a copy of the sample as it will be heavily modified
 	double * X;
 	X = new double[M];
 	memcpy(X, sample, M * sizeof(double));
-	
-	std::sort(X, X+M);
-	
+
+	std::sort(X, X + M);
+
 	//Standardize X
 	for (int i = 0; i < M; i++)
 	{
@@ -59,18 +59,38 @@ double AndersonDarlingTest(const double sample[], const int M, const double mean
 	}
 
 
-	double S =  0; //Readability
+	double S = 0; //Readability
 	for (int i = 0; i < M; i++)
 	{
-		/*Need to be careful with loss of resolution, moving N outside of for loop*/
-		S += ((2*(i+1) -1)*(log(giveCFD(X[i]))+log(1-giveCFD(X[M-1-i]))));
+		/*Need to be careful with loss of resolution, moving M outside of for loop*/
+		S += ((2 * (i + 1) - 1)*(log(giveCFD(X[i])) + log(1 - giveCFD(X[M - 1 - i]))));
 	}
-	S = S/M;
+	S = S / M;
 	double A = (-M - S);
 
+	double adjust = 1 + (.75 + 2.25 / M) / M;
 
+	A = A*adjust;
 
+	int index = 0;
 
-	delete[] X;
-	return A;
+	double Acrit[] = { 0.631, 0.752, 0.873, 1.035 };
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (A < Acrit[i])
+		{
+			break;
+		}
+		else {
+			index++;
+		}
+	}
+
+	double qvals[] = { 1.0, 0.1, 0.05, 0.025, 0.01 };
+
+	double q = qvals[index];
+	
+	delete[] X, Acrit, qvals;
+	return q;
 }
