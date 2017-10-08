@@ -45,14 +45,19 @@ int main() {
 	ofstream mat;
 	mat.open("log.txt", ios::out | ios::app);
 	mat << input_data.N << ";";
+	mat << input_data.M << ";";
 	mat << coin_flip.Mean() << ";";
 	mat << coin_flip.StdDiviation() << ";";
 	mat << coin_flip.FOM() << ";";
 	mat << coin_flip.Timed() << ";";
+	mat << coin_flip.A() << ";";
+	mat << input_data.l << ";";
+	mat << input_data.L << ";";
 	mat << needle_toss.Mean() << ";";
 	mat << needle_toss.StdDiviation() << ";";
 	mat << needle_toss.FOM() << ";";
-	mat << needle_toss.Timed() << ";\n";
+	mat << needle_toss.Timed() << ";";
+	mat << needle_toss.A() << ";\n";
 	mat.close();
 
 	return 0;

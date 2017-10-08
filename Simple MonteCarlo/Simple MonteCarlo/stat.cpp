@@ -37,7 +37,7 @@ double getFOM(const double stddiv, const double T)
 /*using the fancy relations between the complementary error function,
 and CDF of a nice and ordered data set. */
 
-double giveCFD(double value) 
+double giveCDF(double value) 
 {
 	
 	return 0.5*erfc(-value/sqrt(2));
@@ -63,7 +63,7 @@ double AndersonDarlingTest(const double sample[], const int M, const double mean
 	for (int i = 0; i < M; i++)
 	{
 		/*Need to be careful with loss of resolution, moving M outside of for loop*/
-		S += ((2 * (i + 1) - 1)*(log(giveCFD(X[i])) + log(1 - giveCFD(X[M - 1 - i]))));
+		S += ((2 * (i + 1) - 1)*(log(giveCDF(X[i])) + log(1 - giveCDF(X[M - 1 - i]))));
 	}
 	S = S / M;
 	double A = (-M - S);
