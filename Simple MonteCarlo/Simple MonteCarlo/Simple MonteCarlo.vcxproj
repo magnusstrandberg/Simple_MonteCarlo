@@ -24,6 +24,7 @@
     <ClCompile Include="needle.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
     <ClCompile Include="stat.cpp" />
+    <ClCompile Include="Surface.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="needle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stat.h" />
+    <ClInclude Include="Surface.h" />
     <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
