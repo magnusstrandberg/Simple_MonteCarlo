@@ -13,8 +13,10 @@ Surface::~Surface()
 
 
 
-void Surface::CreateSurface(double * data, int tmp)
+void Surface::CreateSurface(double * data, int identifier, int owner_id, int placeholder)
 {
+	ID = identifier;
+	owner_cell = owner_id;
 	int tmp = 6;
 	for (int i = 0; i < 10; i++)
 	{
@@ -57,7 +59,7 @@ int Surface::insideSurf(double * position)
 		return -1;
 
 	}
-	else if(S > 0)
+	else if(S > 10e-14)
 	{
 		return 1;
 	}
@@ -143,7 +145,7 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 			}
 			return 2;
 		}
-		else if (square_value == 0.0)
+		else if (square_value < 10e-14 && square_value > 0)
 		{
 			distance[0] = (-M) / (2 * M);
 			return 1;
@@ -153,4 +155,14 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 			return 0;
 		}
 	}
+}
+
+int Surface::showID()
+{
+	return ID;
+}
+
+int Surface::showOwner()
+{
+	return owner_cell;
 }

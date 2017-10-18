@@ -7,11 +7,8 @@
 using namespace std;
 
 
-Input::Input(const std::string input)
+Input::Input()
 {
-	defaultValues();
-	input_location = input;
-	fileReader(input_location);
 }
 
 
@@ -31,6 +28,7 @@ void Input::defaultValues() {
 
 void Input::fileReader(const std::string filelocation)
 {
+	Input::defaultValues();
 	string line;
 	ifstream input(filelocation);
 	if (input.is_open())

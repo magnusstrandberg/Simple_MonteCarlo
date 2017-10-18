@@ -24,8 +24,10 @@
     <ClCompile Include="needle.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
     <ClCompile Include="stat.cpp" />
+    <ClCompile Include="subspace.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="timer.cpp" />
+    <ClCompile Include="universe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -36,8 +38,10 @@
     <ClInclude Include="needle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stat.h" />
+    <ClInclude Include="subspace.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="universe.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Simple MonteCarlo.rc" />

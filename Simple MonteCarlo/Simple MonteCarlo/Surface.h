@@ -10,13 +10,15 @@ class Surface {
 
 	
 	double surf_param[10];
-	int type;
+	int ID,owner_cell,type;
 
 public:
 	Surface();
 	~Surface();
-	void CreateSurface(double *, int);
+	void CreateSurface(double *, int, int, int);
 	int insideSurf(double *);
 	int distToSurf(double *, double *, double *);
+	int showID();
+	int showOwner();
 	
 };
