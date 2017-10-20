@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <cmath>
 #include <math.h>
+#include <vector>
 
 Surface::Surface()
 {
@@ -13,10 +14,9 @@ Surface::~Surface()
 
 
 
-void Surface::CreateSurface(double * data, int identifier, int owner_id, int placeholder)
+void Surface::CreateSurface(std::vector <double> data, int identifier, int placeholder)
 {
 	ID = identifier;
-	owner_cell = owner_id;
 	int tmp = 6;
 	for (int i = 0; i < 10; i++)
 	{
@@ -38,7 +38,7 @@ void Surface::CreateSurface(double * data, int identifier, int owner_id, int pla
 	return;
 }
 
-int Surface::insideSurf(double * position) 
+int Surface::insideSurf(double * position, bool complement)
 {
 				//Square parameters
 	double S = surf_param[0]*pow(position[0],2) 
@@ -54,20 +54,30 @@ int Surface::insideSurf(double * position)
 		+ (surf_param[8] * position[2])
 		//Constant
 		+ surf_param[9];
+	
+	int inside;
+	
 	if (S < 0)
 	{
-		return -1;
+		inside = -1;
 
 	}
 	else if(S > 10e-14)
 	{
-		return 1;
+		inside = 1;
 	}
 	else
 	{
 		return 0;
 	}
 
+	if (complement) {
+		return -1 * inside;
+	}
+	else
+	{
+		return inside;
+	}
 }
 /*
 A=0	B=1
@@ -90,7 +100,7 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 							+ (surf_param[8] * direction[2]);
 		if (nominator != 0)
 		{
-			distance[0] = (dominator / nominator);
+			distance[0] = -1*(dominator / nominator);
 			return 1;
 		}
 		return 4;
@@ -162,7 +172,4 @@ int Surface::showID()
 	return ID;
 }
 
-int Surface::showOwner()
-{
-	return owner_cell;
-}
+
