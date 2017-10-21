@@ -16,26 +16,29 @@ subspace::~subspace()
 {
 }
 
-void subspace::makeSubspace(Input data, int rank)
+void subspace::makeSubspace(subspace_input subspace_data, 
+							std::vector <Surf_input> Complex_surf_input,
+							std::vector <Cell_input> Cell_input_data)
 {
-	Id = rank;
-	for (int i = 0; i < data.Complex_surf_input.size(); i++)
+	Id = subspace_data.subspace_id;
+	boundry_id = subspace_data.boundery_cell_id;
+	for (int i = 0; i < Complex_surf_input.size(); i++)
 	{
 		//Okey, as all different sub-spaces have their own cells and surfaces.
-		if (data.Complex_surf_input[i].subspace_rank == Id)
+		if (Complex_surf_input[i].subspace_rank == Id)
 		{
 			complex_surfs.push_back(complex_surf());
-			complex_surfs.back().createComplexSurface(data.Complex_surf_input[i]);
+			complex_surfs.back().createComplexSurface(Complex_surf_input[i]);
 		}
 	}
 
 
-	for (int i = 0; i < data.Cell_input_data.size(); i++)
+	for (int i = 0; i < Cell_input_data.size(); i++)
 	{
-		if (data.Cell_input_data[i].subspace_rank == Id)
+		if (Cell_input_data[i].subspace_rank == Id)
 		{
 			cells.push_back(cell());
-			cells.back().createCellfromCompSurf(data.Cell_input_data[i], complex_surfs);
+			cells.back().createCellfromCompSurf(Cell_input_data[i], complex_surfs);
 		}
 	}
 }
@@ -292,17 +295,17 @@ void cell::createCellfromCompSurf(Cell_input input, std::vector <complex_surf> c
 {
 	cell_id = input.Cell_id;
 	cell_name = input.cell_name;
-	members_id = input.members_id;
-	comp_cell_lvl = input.complement;
 
 	for (int i = 0; i < comp.size(); i++)
 	{
 		//Need to be like this so compsurfuces can be part of more than one cell
-		for (int j = 0; j < members_id.size() ; j++)
+		for (int j = 0; j < input.cell_complements.size() ; j++)
 		{
-			if (comp[i].complex_id == members_id[j] )
+			if (comp[i].complex_id == input.cell_complements[j].comp_surface_id )
 			{
 				components.push_back(comp[i]);
+				members_id.push_back(input.cell_complements[j].comp_surface_id);
+				comp_cell_lvl.push_back(input.cell_complements[j].cell_complement);
 			}
 		}
 	}
@@ -311,4 +314,58 @@ void cell::createCellfromCompSurf(Cell_input input, std::vector <complex_surf> c
 }
 
 
+int cell::insideCell(double * position, bool complement)
+{
+	bool inside = true;
+	int value = 0;
+	for (int i = 0; i < components.size(); i++)
+	{
+		if (components[i].insideComplexSurface(position, comp_cell_lvl[i]) != -1)
+		{
+			inside = false;
+			break;
+		}
+	}
 
+	if (inside) value = -1;
+	else value = 1;
+
+	if (complement)
+	{
+		return (-1 * value);
+	}
+	else
+	{
+		return value;
+	}
+
+}
+
+double cell::distanceCell(double * position, double * direction)
+{
+	std::vector <double> tries;
+	for (int i = 0; i < components.size(); i++)
+	{
+			tries.push_back(components[i].distanceComplexSurface(position, direction));
+	}
+	std::sort(tries.begin(), tries.end());
+	double epsilon = 10e-10;
+	double newpos[3] = { 0,0,0 };
+	for (int i = 0; i < tries.size(); i++)
+	{
+		if (tries[i] < 0)
+		{
+			continue;
+		}
+		newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
+		newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
+		newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+
+		if (insideCell(position, 0) != insideCell(newpos, 0))
+		{
+			return tries[i];
+		}
+	}
+	return -1;
+	return 0.0;
+}

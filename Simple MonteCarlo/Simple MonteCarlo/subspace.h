@@ -11,7 +11,7 @@ class complex_surf;
 class subspace {
 protected:
 	Input input_data;
-	int Id;
+	int Id,boundry_id;
 	std::vector <cell> cells;
 	std::vector <complex_surf> complex_surfs;
 	
@@ -19,7 +19,7 @@ protected:
 public:
 	subspace();
 	~subspace();
-	void makeSubspace(Input, int);
+	void makeSubspace(subspace_input, std::vector <Surf_input>,	std::vector <Cell_input>);
 };
 
 
@@ -46,6 +46,8 @@ public:
 	cell();
 	~cell();
 	void createCellfromCompSurf(Cell_input, std::vector <complex_surf>);
+	int insideCell(double *, bool);
+	double distanceCell(double *, double *);
 private:
 	int cell_id;
 	std::string cell_name;
