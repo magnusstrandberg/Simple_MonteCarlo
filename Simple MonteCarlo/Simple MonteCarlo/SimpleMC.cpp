@@ -12,6 +12,7 @@
 
 using namespace std;
 void fileReader(string);
+void testInput(Input);
 
 
 int main()
@@ -19,6 +20,8 @@ int main()
 	string filelocation = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\input.txt";
 	Input input_data;
 	input_data.fileReader(filelocation);
+	
+	/*
 	ofstream log;
 	log.open("read.txt", ios::out | ios::app);
 	log << "*************************\n";
@@ -103,8 +106,45 @@ int main()
 	dist2 = cell1.distanceCell(point, dir);
 	log << "Distance from cell: " << dist2 << "\n";
 	
+	
+	log.close(); */
 
-	log.close();
+	testInput(input_data);
+
+
 
 	return 0;
 }
+
+
+void testInput(Input input_data) 
+{
+	ofstream log;
+	log.open("read.txt", ios::out | ios::app);
+	log << "*************************\n";
+
+	log << "Input reader:\n";
+	log << "How many Complex surfaces: " << input_data.Complex_surf_input.size() << "\n";
+
+	for (int i = 0; i < input_data.Complex_surf_input.size(); i++)
+	{
+		log << "\n Surface nr: " << i + 1 << "\n";
+		log << "Complex Id: " << input_data.Complex_surf_input[i].complex_id << "\n";
+		log << "Subspace rank: " << input_data.Complex_surf_input[i].subspace_rank << "\n";
+		log << "Type: " << input_data.Complex_surf_input[i].type << "\n";
+		log << "How many surfaces components: " << input_data.Complex_surf_input[i].Surfparams.size() << "\n";
+		for (int j = 0; j < input_data.Complex_surf_input[i].Surfparams.size(); j++)
+		{
+			log << "Surface nr" << j + 1 << " components \n";
+			log << "Surface is complement: " << input_data.Complex_surf_input[i].complement[j] << "\n";
+			for (int k = 0; k < 10; k++)
+			{
+				log << " " << input_data.Complex_surf_input[i].Surfparams[j].at(k) << "\n";
+			}
+		}
+	}
+	log.close();
+	return;
+}
+
+

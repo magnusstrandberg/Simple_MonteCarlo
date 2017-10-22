@@ -15,7 +15,7 @@ enum Surf_type
 	prism_hex_inf,
 };
 
-//Make a subspace struct that contains ID, and boundry box indications, preferebly a Cell ID comp.
+
 
 struct cell_comp
 {
@@ -60,10 +60,17 @@ public:
 	void defaultValues();
 	void fileReader(const std::string);
 	void dataParser(const std::string);
+	void surfCreator(const std::string);
+	void surfSphere(const std::string, Surf_input);
+	void surfCylinder(const std::string, Surf_input);
+	void surfParPlane(const std::string, Surf_input);
+	void surfPlane(const std::string, Surf_input);
+	std::vector <double> generalPlanParams(double[], double[], double[]);
+	void surfCubid(const std::string, Surf_input);
+	void surfSquarePrismInf(const std::string, Surf_input);
 	void createDataSet(const std::string, const std::string);
 	void printData();
 	int checkInputCompletness();
-	void createspheredata(double *, double);
 };
 
 

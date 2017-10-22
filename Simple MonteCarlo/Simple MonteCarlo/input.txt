@@ -10,3 +10,10 @@ Coin=1;
 
 l=1.0;
 L=1.0;
+
+%Surf = para_plane;1;10;1;-10;
+Surf = plane; 2; 10; 4,2,3; 5,1,0; 2,0,2;
+%Surf = cylinder; 3; 10; 5; 2; 1,2,3; 2;
+%Surf = sphere; 5; 10; 3; 0,0,0;
+%Surf = cubid; 4; 10; 2; 3; 4;0,0,1;
+%Surf = square_prism_inf; 1; 11; 2; 3; 3; 0,1,2;
