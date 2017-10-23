@@ -167,6 +167,44 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 	}
 }
 
+void Surface::surfaceNorm(double * position,double * norm, bool side)
+{
+	double nabS_x;
+	double nabS_y;
+	double nabS_z;
+	double abs_xyz;
+
+	nabS_x = ((2 * surf_param[0] * position[0])
+			+ (surf_param[3] * position[1])
+			+ (surf_param[5] * position[2])
+			+ (surf_param[6]));
+	
+	nabS_y = ((2 * surf_param[1] * position[1])
+			+ (surf_param[3] * position[0])
+			+ (surf_param[4] * position[2])
+			+ (surf_param[7]));
+	nabS_z = ((2 * surf_param[2] * position[2])
+			+ (surf_param[4] * position[1])
+			+ (surf_param[5] * position[0])
+			+ (surf_param[8]));
+
+	abs_xyz = sqrt(pow(nabS_x, 2) + pow(nabS_y, 2) + pow(nabS_z, 2));
+
+	//normal on the other side.
+	if (!side)
+	{
+		nabS_x = -1 * nabS_x;
+		nabS_y = -1 * nabS_y;
+		nabS_z = -1 * nabS_z;
+	}
+
+	norm[0] = nabS_x / abs_xyz;
+	norm[1] = nabS_y / abs_xyz;
+	norm[2] = nabS_z / abs_xyz;
+
+	return;
+}
+
 int Surface::showID()
 {
 	return ID;

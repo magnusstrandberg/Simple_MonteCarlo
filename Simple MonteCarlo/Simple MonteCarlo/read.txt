@@ -1,0 +1,51 @@
+
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.57
+Turned into: -0.999203 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.57
+Turned into: 1 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.57
+Turned into: 1 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.57
+Turned into: -0.999203 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 1.57 0
+Turned into: 1.0008 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 1.57 0
+Turned into: 1.0008 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 1.57 0
+Turned into: 1 0 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 1.57 0
+Turned into: 0.000796327 0 -1
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.57
+Turned into: 0.000796327 1 0
+*************************
+Test rotations class:
+Dir was: 1 0 0
+Rotated by: 0 0 1.5708
+Turned into: 1.7949e-09 1 0

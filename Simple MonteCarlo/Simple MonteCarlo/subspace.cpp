@@ -5,6 +5,7 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 
 subspace::subspace()
@@ -16,12 +17,15 @@ subspace::~subspace()
 {
 }
 
+
+
 void subspace::makeSubspace(subspace_input subspace_data, 
 							std::vector <Surf_input> Complex_surf_input,
 							std::vector <Cell_input> Cell_input_data)
 {
 	Id = subspace_data.subspace_id;
 	boundry_id = subspace_data.boundery_cell_id;
+	subspaceranges = subspace_data.subspacerange;
 	for (int i = 0; i < Complex_surf_input.size(); i++)
 	{
 		//Okey, as all different sub-spaces have their own cells and surfaces.
@@ -44,6 +48,41 @@ void subspace::makeSubspace(subspace_input subspace_data,
 }
 
 
+int subspace::findCellatpoint(double * point)
+{
+	//returns cell vector index to the cell
+	std::vector <int> inside_values;
+	std::vector<int>::iterator it;
+	for (size_t i = 0; i < cells.size(); i++)
+	{
+		inside_values.push_back(cells[i].insideCell(point,0));
+	}
+
+	int insides = std::count(inside_values.begin(), inside_values.end(), -1);
+
+	if (insides == 1) 
+	{
+		for (int i = 0; i < inside_values.size(); i++)
+		{
+			if (inside_values[i]== -1)
+			{
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int subspace::printCellID(int order) 
+{
+	return cells[order].cell_id;
+}
+
+std::string subspace::printCellName(int order)
+{
+	return cells[order].cell_name;
+}
 
 complex_surf::complex_surf()
 {

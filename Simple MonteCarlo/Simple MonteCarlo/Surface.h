@@ -19,6 +19,7 @@ public:
 	void CreateSurface(std::vector <double>, int, int);
 	int insideSurf(double *, bool);
 	int distToSurf(double *, double *, double *);
+	void surfaceNorm(double *, double * , bool);
 	int showID();
 	
 };

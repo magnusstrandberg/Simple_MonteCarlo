@@ -21,10 +21,7 @@ Input::~Input()
 void Input::defaultValues() {
 	N = -999;
 	M = -999;
-	Needle = -999;
-	Coin = -999;
-	l = -999;
-	L = -999;
+
 }
 
 
@@ -82,12 +79,12 @@ void Input::createDataSet(const std::string para, std::string value)
 	}
 	if (para == "Cell")
 	{
-
+		cellCreator(value);
 		return;
 	}
 	if (para == "Subspace")
 	{
-
+		subspaceCreator(value);
 		return;
 	}
 	//Simple numerical values can be handled directly, removing ;
@@ -101,23 +98,7 @@ void Input::createDataSet(const std::string para, std::string value)
 		M = stoi(value);
 		return;
 	}
-	if (para == "Needle") {
-		Needle = stoi(value);
-		return;
-	}
-	if (para == "Coin") {
-		Coin = stoi(value);
-		return;
-	}
-	if (para == "L") {
-		L = stod(value);
-		return;
-	}
-	if (para == "l") {
-		l = stod(value);
-		return;
-	}
-
+	
 	return;
 
 }
@@ -130,13 +111,119 @@ G=6 H=7
 I=8 J=9
 */
 
+void Input::subspaceCreator(const std::string data)
+{
+	//ID;boundrycellID;Ranges
+	subspace_input some_subspace;
+	
+	string::size_type split = data.find(';');
+	string::size_type old;
+
+	//ID
+	some_subspace.subspace_id = stoi(data.substr(0, split));
+
+
+	old = split + 1;
+	split = data.find(';', old);
+	//Cell ID
+	some_subspace.boundery_cell_id = stoi(data.substr(old, split));
+
+	string::size_type old_point, point;
+
+	old = split + 1;
+	split = data.find(';', old);
+	old_point = old;
+
+	
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.x.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.x.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.y.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.y.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.z.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+	point = data.find(',', old_point);
+	some_subspace.subspacerange.z.push_back(stod(data.substr(old_point, point)));
+	old_point = point + 1;
+	
+	
+
+
+	subspace_input_data.push_back(some_subspace);
+	return;
+}
+
+void Input::cellCreator(const std::string data)
+{
+	string::size_type split = data.find(';');
+	string::size_type old;
+
+	//ID;Name;Rank;Nrcomp;complements(surf1,complement1,surf2,complement2..);
+	Cell_input some_cell;
+
+	//Name
+	some_cell.cell_name = data.substr(0, split);
+	
+
+
+	old = split + 1;
+	split = data.find(';', old);
+	//Cell ID
+	some_cell.Cell_id = stoi(data.substr(old, split));
+	
+
+	old = split + 1;
+	split = data.find(';', old);
+	//Subspace Rank
+	some_cell.subspace_rank = stoi(data.substr(old, split));
+
+	old = split + 1;
+	split = data.find(';', old);
+	//Subspace Rank
+	int componentsNr = stoi(data.substr(old, split));
+
+
+	string::size_type old_point, point;
+
+
+	old = split + 1;
+	split = data.find(';', old);
+	old_point = old;
+
+	for (int i = 0; i < componentsNr; i++)
+	{
+		cell_comp a_comp;
+		point = data.find(',', old_point);
+		a_comp.comp_surface_id = stoi(data.substr(old_point, point));
+		old_point = point + 1;
+		point = data.find(',', old_point);
+		a_comp.cell_complement = stoi(data.substr(old_point, point));
+		old_point = point + 1;
+		some_cell.cell_complements.push_back(a_comp);
+	}
+
+
+
+	Cell_input_data.push_back(some_cell);
+	return;
+}
+
 void Input::surfCreator(const std::string data)
 {
 	
 	string type, values;
 
 	string::size_type split = data.find(';');
-	string::size_type old;
 
 	type = data.substr(0, split);
 	values = data.substr(split + 1);
@@ -174,6 +261,12 @@ void Input::surfCreator(const std::string data)
 	if (type == "square_prism_inf")
 	{
 		surfSquarePrismInf(values, some_surface);
+		return;
+	}
+
+	if (type == "Hex")
+	{
+		surfHexPrism(values, some_surface);
 		return;
 	}
 
@@ -757,6 +850,183 @@ void Input::surfSquarePrismInf(const std::string values, Surf_input prism)
 }
 
 
+void Input::surfHexPrism(const std::string values, Surf_input prism)
+{
+	//type;ComplexID;Rank;height(0 is infinite);parallel to; centre point (at bottom if height); radius;
+	double height, centre_point[3], radius;
+	std::vector <bool> comp_cyl;
+	int parallel_to;
+
+	string::size_type split;
+	string::size_type old;
+
+	split = values.find(';');
+	//comp ID
+	prism.complex_id = stoi(values.substr(0, split));
+
+	old = split + 1;
+	split = values.find(';', old);
+	//Subspace rank
+	prism.subspace_rank = stoi(values.substr(old, split));
+
+	old = split + 1;
+	split = values.find(';', old);
+	//height
+	height = stod(values.substr(old, split));
+
+	old = split + 1;
+	split = values.find(';', old);
+	//parallel to
+	parallel_to = stoi(values.substr(old, split));
+
+	string::size_type old_point, point;
+
+	old = split + 1;
+	split = values.find(';', old);
+	old_point = old;
+
+	for (int i = 0; i < 3; i++)
+	{
+		point = values.find(',', old_point);
+		centre_point[i] = stod(values.substr(old_point, point));
+		old_point = point + 1;
+	}
+
+	old = split + 1;
+	split = values.find(';', old);
+
+	radius = stod(values.substr(old, split));
+
+	if (parallel_to == 3)
+	{
+
+		std::vector <double> parpcomponents(10, 0);
+		std::vector <double> parmcomponents(10, 0);
+
+		parpcomponents[6] = 1;
+		parmcomponents[6] = 1;
+
+		parpcomponents[9] = (-1*(centre_point[0] + radius));
+		parmcomponents[9] = (-1*(centre_point[0] - radius));
+
+		prism.Surfparams.push_back(parpcomponents);
+		prism.complement.push_back(0);
+		prism.surf_ids.push_back(1);
+		prism.Surfparams.push_back(parmcomponents);
+		prism.complement.push_back(1);
+		prism.surf_ids.push_back(2);
+
+		double tmppoint1[3];
+		double tmppoint2[3];
+		double tmppoint3[3];
+
+		//tilted planes created with help of threepoint plane function
+		
+		//12 a clock
+		tmppoint1[0] = centre_point[0];
+		tmppoint1[1] = centre_point[1]+radius;
+		tmppoint1[2] = centre_point[2];
+		//12 a clock but one step up
+		tmppoint2[0] = centre_point[0];
+		tmppoint2[1] = centre_point[1] + radius;
+		tmppoint2[2] = centre_point[2] + 1.0;
+		//2 aclock
+		tmppoint3[0] = centre_point[0] + (radius*(sqrt(3)/2));
+		tmppoint3[1] = centre_point[1] + (radius*0.5);
+		tmppoint3[2] = centre_point[2];
+
+		std::vector <double> tmp_parameters = generalPlanParams(tmppoint1, tmppoint2, tmppoint3);
+
+		prism.Surfparams.push_back(tmp_parameters);
+		prism.complement.push_back(0);
+		prism.surf_ids.push_back(3);
+
+		//6 aclock
+		tmppoint1[0] = centre_point[0];
+		tmppoint1[1] = centre_point[1] - radius;
+		tmppoint1[2] = centre_point[2];
+		//6 aclock but one step up
+		tmppoint2[0] = centre_point[0];
+		tmppoint2[1] = centre_point[1] - radius;
+		tmppoint2[2] = centre_point[2] + 1.0;
+		//4 aclock
+		tmppoint3[0] = centre_point[0] + (radius*(sqrt(3) / 2));
+		tmppoint3[1] = centre_point[1] - (radius*0.5);
+		tmppoint3[2] = centre_point[2];
+
+		tmp_parameters = generalPlanParams(tmppoint1, tmppoint2, tmppoint3);
+
+		prism.Surfparams.push_back(tmp_parameters);
+		prism.complement.push_back(1);
+		prism.surf_ids.push_back(4);
+
+		//6 aclock
+		tmppoint1[0] = centre_point[0];
+		tmppoint1[1] = centre_point[1] - radius;
+		tmppoint1[2] = centre_point[2];
+		//6 aclock but one step up
+		tmppoint2[0] = centre_point[0];
+		tmppoint2[1] = centre_point[1] - radius;
+		tmppoint2[2] = centre_point[2] + 1.0;
+		//8 aclock
+		tmppoint3[0] = centre_point[0] - (radius*(sqrt(3) / 2));
+		tmppoint3[1] = centre_point[1] - (radius*0.5);
+		tmppoint3[2] = centre_point[2];
+
+		tmp_parameters = generalPlanParams(tmppoint1, tmppoint2, tmppoint3);
+
+		prism.Surfparams.push_back(tmp_parameters);
+		prism.complement.push_back(0);
+		prism.surf_ids.push_back(5);
+
+		//12 aclock
+		tmppoint1[0] = centre_point[0];
+		tmppoint1[1] = centre_point[1] + radius;
+		tmppoint1[2] = centre_point[2];
+		//12 aclock but one step up
+		tmppoint2[0] = centre_point[0];
+		tmppoint2[1] = centre_point[1] + radius;
+		tmppoint2[2] = centre_point[2] + 1.0;
+		//10 aclock
+		tmppoint3[0] = centre_point[0] - (radius*(sqrt(3) / 2));
+		tmppoint3[1] = centre_point[1] + (radius*0.5);
+		tmppoint3[2] = centre_point[2];
+
+		tmp_parameters = generalPlanParams(tmppoint1, tmppoint2, tmppoint3);
+
+		prism.Surfparams.push_back(tmp_parameters);
+		prism.complement.push_back(1);
+		prism.surf_ids.push_back(6);
+
+		if (height != 0)
+		{
+			std::vector <double> botcomp(10, 0);
+			std::vector <double> topcomp(10, 0);
+
+			botcomp[8] = 1;
+			botcomp[9] = (-1 * centre_point[2]);
+			prism.Surfparams.push_back(botcomp);
+			prism.complement.push_back(1);
+			topcomp[8] = 1;
+			topcomp[9] = (-1 * (centre_point[2] + height));
+			prism.Surfparams.push_back(topcomp);
+			prism.complement.push_back(0);
+			prism.type = prism_hex;
+		}
+		else
+		{
+			prism.type = prism_hex_inf;
+		}
+		
+	}
+
+
+	Complex_surf_input.push_back(prism);
+
+	return;
+}
+
+
 //legacy
 void Input::printData()
 {
@@ -768,9 +1038,6 @@ int Input::checkInputCompletness()
 {
 	if (N == -999) {return 1;}
 	if (M == -999) {return 1;}
-	if (Needle == -999) { return 1; }
-	if (Coin == -999) { return 1; }
-	if (L == -999) { return 1; }
-	if (l == -999) { return 1; }
+
 	return 0;
 }

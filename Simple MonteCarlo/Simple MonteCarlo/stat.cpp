@@ -3,28 +3,29 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-double getMean(const double ratios[], const int M)
+double getMean(std::vector <double> ratios)
 {
 	double mean = 0.0;
-	for (int i = 0; i < M; i++) {
+	for (int i = 0; i < ratios.size(); i++) {
 		mean += ratios[i];
 	}
-	return (mean/(double)M);
+	return (mean/(double)ratios.size());
 }
 
 
-double getStddiv(const double ratios[], const double mean, const int M)
+double getStddiv(std::vector <double> ratios, const double mean)
 {
 	double stddiv=0;
-	for (int i = 0; i < M; i++)
+	for (int i = 0; i < ratios.size(); i++)
 	{
 		stddiv += pow((ratios[i]-mean),2);
 	}
 
-	stddiv = stddiv / M;
+	stddiv = stddiv / (double)ratios.size();
 	stddiv = sqrt(stddiv);
 	return stddiv;
 }

@@ -9,17 +9,21 @@ class cell;
 class complex_surf;
 
 class subspace {
+	friend class Universe;
 protected:
 	Input input_data;
 	int Id,boundry_id;
 	std::vector <cell> cells;
 	std::vector <complex_surf> complex_surfs;
-	
+	ranges subspaceranges;
 
 public:
 	subspace();
 	~subspace();
 	void makeSubspace(subspace_input, std::vector <Surf_input>,	std::vector <Cell_input>);
+	int findCellatpoint(double *);
+	int printCellID(int);
+	std::string printCellName(int);
 };
 
 
@@ -42,6 +46,7 @@ private:
 
 class cell
 {
+	friend class subspace;
 public:
 	cell();
 	~cell();

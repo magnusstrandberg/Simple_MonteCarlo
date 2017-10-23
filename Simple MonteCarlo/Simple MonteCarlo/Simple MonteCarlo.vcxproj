@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="coin.cpp" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="needle.cpp" />
+    <ClCompile Include="Rotations.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
     <ClCompile Include="stat.cpp" />
     <ClCompile Include="subspace.cpp" />
@@ -35,8 +35,8 @@
   <ItemGroup>
     <ClInclude Include="coin.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="needle.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Rotations.h" />
     <ClInclude Include="stat.h" />
     <ClInclude Include="subspace.h" />
     <ClInclude Include="Surface.h" />
@@ -49,6 +49,7 @@
   <ItemGroup>
     <Text Include="input.txt" />
     <Text Include="log.txt" />
+    <Text Include="Pointsvol.txt" />
     <Text Include="read.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

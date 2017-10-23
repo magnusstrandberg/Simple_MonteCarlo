@@ -30,9 +30,6 @@
     <ClCompile Include="stat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="needle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Surface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="subspace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rotations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,9 +62,6 @@
     <ClInclude Include="stat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="needle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="subspace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rotations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,6 +88,9 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="read.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Pointsvol.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

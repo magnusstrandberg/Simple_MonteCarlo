@@ -31,11 +31,11 @@ void coin::flipflip()
 		ratio[i] = flipNtimes();
 	}
 	T = t.calcStop();
-	mean = getMean(ratio, input_data.M);
+	/*mean = getMean(ratio, input_data.M);
 	stddiv = getStddiv(ratio, mean, input_data.M);
 	fom = getFOM(stddiv, T);
 	AValue = AndersonDarlingTest(ratio, input_data.M, mean, stddiv);
-	
+	*/
 }
 
 double coin::Timed()

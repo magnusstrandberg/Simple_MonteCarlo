@@ -2,18 +2,42 @@
 %this is 2
 
 
-N=10;
+N=1000;
 M = 100;
 
-Needle = 1;
-Coin=1;
-
-l=1.0;
-L=1.0;
 
 %Surf = para_plane;1;10;1;-10;
-Surf = plane; 2; 10; 4,2,3; 5,1,0; 2,0,2;
+%Surf = plane; 2; 10; 4,2,3; 5,1,0; 2,0,2;
+
+%type;ComplexID;Rank;height(0 is infinite);
+%parallel to; centre point (at bottom if height); radius;
 %Surf = cylinder; 3; 10; 5; 2; 1,2,3; 2;
 %Surf = sphere; 5; 10; 3; 0,0,0;
 %Surf = cubid; 4; 10; 2; 3; 4;0,0,1;
 %Surf = square_prism_inf; 1; 11; 2; 3; 3; 0,1,2;
+%Surf = Hex; 1; 3; 10; 3; 0,0,0; 1;
+%Cell =  test_cell; 6; 10; 3;5,0,60,1,55,0;
+%Subspace = 1;99;
+
+%Surf = cylinder;1;1;0;3;0,0,0;0.412;
+%Surf = cylinder;2;1;0;3;0,0,0;0.475;
+%Surf = square_prism_inf;3;1;1.330;1.330;3;0,0,0;
+
+Cell = Fuel;1;1; 1;1,0;
+Cell = Cladding;2;1; 2;1,1,2,0;
+Cell = Coolant;3;1; 2;2,1, 3,0;
+Cell = Outside;4;1; 1;3,1;
+
+Subspace = 1;4;-0.665,0.665,-0.665,0.665,0,1;
+
+%Surf = cylinder;1;2;7;3;0,0,-3.5;2;
+%Surf = cylinder;2;2;7.1;3;0,0,-3.55;2.05;
+%Surf = para_plane;3;2;3;0;
+
+Cell = Inside_bot; 1;2; 2; 1,0,3,0;
+Cell = Inside_top; 2;2; 2; 1,0,3,1;
+Cell = Cylinder_wall; 3;2; 2; 1,1,2,0;
+Cell = Outside; 4;2; 1;2,1;
+
+Subspace = 2;4;-2.05,2.05,-2.05,2.05,-3.55,3.55;
+

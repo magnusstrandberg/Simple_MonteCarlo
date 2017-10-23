@@ -4,15 +4,18 @@
 #include "Input.h"
 #include "timer.h"
 #include "coin.h"
-#include "needle.h"
 #include "stat.h"
 #include "Surface.h"
 #include "subspace.h"
 #include "universe.h"
+#include "Rotations.h"
 
 using namespace std;
 void fileReader(string);
-void testInput(Input);
+void testInputCompSurf(Input);
+void testInputCell(Input);
+void testInputSubspace(Input);
+void testRotations();
 
 
 int main()
@@ -21,103 +24,24 @@ int main()
 	Input input_data;
 	input_data.fileReader(filelocation);
 	
+	//testInputCompSurf(input_data);
+	//testInputCell(input_data); 
+	//testInputSubspace(input_data);
 	/*
-	ofstream log;
-	log.open("read.txt", ios::out | ios::app);
-	log << "*************************\n";
-	log << "Testing Cells";
+	Universe uni;
+	uni.buildSubspaces(input_data);
+	uni.calculateVolumes(0);
+	uni.calculateVolumes(1);
+	*/
+	testRotations();
 	
-	double data[] = {0, 0, 0, 0, 0, 0, 1, 0, 0, 2};
-	double data2[] = { 0, 0, 0, 0, 0, 0, 1, 0, 0, -2 };
-	double data3[] = { 0, 0, 0, 0, 0, 0, 0, 1, 0, 2 };
-	double data4[] = { 0, 0, 0, 0, 0, 0, 0, 1, 0, -2 };
-	double data5[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 };
-	vector <double> datav1(data, data + sizeof(data) / sizeof(double));
-	vector <double> datav2(data2, data2 + sizeof(data2) / sizeof(double));
-	vector <double> datav3(data3, data3 + sizeof(data3) / sizeof(double));
-	vector <double> datav4(data4, data4 + sizeof(data4) / sizeof(double));
-	vector <double> datav5(data5, data5 + sizeof(data5) / sizeof(double));
-	double point[3] = {0, 0, -1};
-	double dir[] = {1,0,1};
-	double dist[] = {0,0};
-
-
-	Surf_input test2;
-	test2.complex_id = 100;
-	test2.surf_ids.push_back(1);
-	test2.surf_ids.push_back(2);
-	test2.surf_ids.push_back(3);
-	test2.surf_ids.push_back(4);
-	test2.type = prism_square_inf;
-	test2.complement.push_back(1);
-	test2.complement.push_back(0);
-	test2.complement.push_back(1);
-	test2.complement.push_back(0);
-	test2.Surfparams.push_back(datav1);
-	test2.Surfparams.push_back(datav2);
-	test2.Surfparams.push_back(datav3);
-	test2.Surfparams.push_back(datav4);
-	
-	Surf_input test3;
-	test3.complex_id = 200;
-	test3.surf_ids.push_back(1);
-	test3.type = plane;
-	test3.complement.push_back(0);
-	test3.Surfparams.push_back(datav5);
-
-	complex_surf comptest1;
-	comptest1.createComplexSurface(test2);
-	complex_surf comptest2;
-	comptest2.createComplexSurface(test3);
-
-	vector <complex_surf> celltestsurf;
-	celltestsurf.push_back(comptest1);
-	celltestsurf.push_back(comptest2);
-
-	cell_comp comp1;
-	comp1.cell_complement = 0;
-	comp1.comp_surface_id = 100;
-
-	cell_comp comp2;
-	comp2.cell_complement = 1;
-	comp2.comp_surface_id = 200;
-
-	
-
-	Cell_input celltest;
-	celltest.Cell_id = 10000;
-	celltest.subspace_rank = 1;
-	celltest.cell_name = "test";
-	celltest.cell_complements.push_back(comp1);
-	celltest.cell_complements.push_back(comp2);
-
-	cell cell1;
-	cell1.createCellfromCompSurf(celltest, celltestsurf);
-
-
-	log << "Testing the complex surface of type: " << test2.type << "\n";
-	log << "If negative inside: " << comptest1.insideComplexSurface(point, 0) << "\n";
-
-	double dist2 = comptest1.distanceComplexSurface(point, dir);
-	log << "Distance from complex: " << dist2 << "\n";
-
-	log << "Testing the cell \n";
-	log << "Negative if inside cell: " << cell1.insideCell(point, 0) << "\n";
-	dist2 = cell1.distanceCell(point, dir);
-	log << "Distance from cell: " << dist2 << "\n";
-	
-	
-	log.close(); */
-
-	testInput(input_data);
-
 
 
 	return 0;
 }
 
 
-void testInput(Input input_data) 
+void testInputCompSurf(Input input_data) 
 {
 	ofstream log;
 	log.open("read.txt", ios::out | ios::app);
@@ -147,4 +71,93 @@ void testInput(Input input_data)
 	return;
 }
 
+void testInputCell(Input input_data)
+{
+	ofstream log;
+	log.open("read.txt", ios::out | ios::app);
+	log << "*************************\n";
+
+	log << "Input reader:\n";
+	log << "How many Cells: " << input_data.Cell_input_data.size() << "\n";
+
+	for (int i = 0; i < input_data.Cell_input_data.size(); i++)
+	{
+		log << "\n Cell nr: " << i + 1 << "\n";
+		log << "Cell Id: " << input_data.Cell_input_data[i].Cell_id << "\n";
+		log << "Subspace rank: " << input_data.Cell_input_data[i].subspace_rank << "\n";
+		log << "Name: " << input_data.Cell_input_data[i].cell_name << "\n";
+		log << "How many surfaces components: " << input_data.Cell_input_data[i].cell_complements.size() << "\n";
+		for (int j = 0; j < input_data.Cell_input_data[i].cell_complements.size(); j++)
+		{
+			log << "Surface ID: " << 
+				input_data.Cell_input_data[i].cell_complements[j].comp_surface_id << " \n";
+			log << "Surface is complement: " << 
+					input_data.Cell_input_data[i].cell_complements[j].cell_complement << "\n";
+		}
+	}
+	log.close();
+	return;
+}
+
+void testInputSubspace(Input input_data)
+{
+	ofstream log;
+	log.open("read.txt", ios::out | ios::app);
+	log << "*************************\n";
+
+	log << "Input reader:\n";
+	log << "How many Subspaces: " << input_data.subspace_input_data.size() << "\n";
+
+	for (int i = 0; i < input_data.subspace_input_data.size(); i++)
+	{
+		log << "\n Cell nr: " << i + 1 << "\n";
+		log << "Subspace Id/rank: " << input_data.subspace_input_data[i].subspace_id << "\n";
+		log << "Boundry cell ID: " << input_data.subspace_input_data[i].boundery_cell_id << "\n";
+		log << "Boundry x range from: "
+			<< input_data.subspace_input_data[i].subspacerange.x[0]
+			<< " to "
+			<< input_data.subspace_input_data[i].subspacerange.x[1]
+			<< "\n";
+		log << "Boundry y range from: "
+			<< input_data.subspace_input_data[i].subspacerange.y[0]
+			<< " to "
+			<< input_data.subspace_input_data[i].subspacerange.y[1]
+			<< "\n";
+		log << "Boundry z range from: "
+			<< input_data.subspace_input_data[i].subspacerange.z[0]
+			<< " to "
+			<< input_data.subspace_input_data[i].subspacerange.z[1]
+			<< "\n";
+	}
+	log.close();
+	return;
+}
+void testRotations()
+{
+	ofstream log;
+	log.open("read.txt", ios::out | ios::app);
+	log << "*************************\n";
+
+	log << "Test rotations class:\n";
+
+	double dir[] = { 1,0,0 };
+	double dirR[3];
+	double angs[] = {0,0,0};
+
+	Rotations r;
+	r.Rotation(dir,dirR,angs);
+
+	log << "Dir was: " << dir[0]
+		<< " " << dir[1]
+		<< " " << dir[2] << "\n";
+	log << "Rotated by: " << angs[0]
+		<< " " << angs[1]
+		<< " " << angs[2] << "\n";
+	log << "Turned into: " << dirR[0]
+		<< " " << dirR[1]
+		<< " " << dirR[2] << "\n";
+		
+	log.close();
+	return;
+}
 

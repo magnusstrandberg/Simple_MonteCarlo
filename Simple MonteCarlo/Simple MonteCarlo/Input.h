@@ -15,7 +15,12 @@ enum Surf_type
 	prism_hex_inf,
 };
 
-
+struct ranges
+{
+	std::vector <double> x;
+	std::vector <double> y;
+	std::vector <double> z;
+};
 
 struct cell_comp
 {
@@ -27,6 +32,7 @@ struct subspace_input
 {
 	int subspace_id;
 	int boundery_cell_id; //This cell is the outside.
+	ranges subspacerange;
 };
 
 struct Cell_input
@@ -49,8 +55,7 @@ struct Surf_input
 class Input
 {
 public:
-	int N, M, Needle, Coin;
-	double l, L;
+	int N, M;
 	std::string input_location;
 	std::vector <Surf_input> Complex_surf_input;
 	std::vector <Cell_input> Cell_input_data;
@@ -59,18 +64,23 @@ public:
 	~Input ();
 	void defaultValues();
 	void fileReader(const std::string);
+	void printData();
+	int checkInputCompletness();
+private:
 	void dataParser(const std::string);
+	void subspaceCreator(const std::string);
+	void cellCreator(const std::string);
 	void surfCreator(const std::string);
 	void surfSphere(const std::string, Surf_input);
 	void surfCylinder(const std::string, Surf_input);
 	void surfParPlane(const std::string, Surf_input);
 	void surfPlane(const std::string, Surf_input);
+	void surfHexPrism(const std::string, Surf_input);
 	std::vector <double> generalPlanParams(double[], double[], double[]);
 	void surfCubid(const std::string, Surf_input);
 	void surfSquarePrismInf(const std::string, Surf_input);
 	void createDataSet(const std::string, const std::string);
-	void printData();
-	int checkInputCompletness();
+
 };
 
 
