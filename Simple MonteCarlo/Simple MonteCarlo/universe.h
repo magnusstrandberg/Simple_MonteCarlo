@@ -19,6 +19,7 @@ public:
 	~Universe();
 	void buildSubspaces(Input);
 	void calculateVolumes(int);
+	void plotSlice(double, int);
 	std::vector <int> pointVolume(int);
 
 	std::vector <subspace> subspaces;

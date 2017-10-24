@@ -2,6 +2,7 @@
 #include "Surface.h"
 #include "subspace.h"
 #include "stat.h"
+#include "timer.h"
 #include <random>
 #include <iostream>
 #include <fstream>
@@ -44,8 +45,13 @@ void Universe::calculateVolumes(int subspacerank)
 				* (subspaces[subspacerank].subspaceranges.z[1]
 					- subspaces[subspacerank].subspaceranges.z[0]);
 	
+	timer t;
+	t.startTime();
+
 	std::vector <std::vector <int> > hits
 			(M, std::vector<int>(subspaces[subspacerank].cells.size()));
+
+	
 
 	for (int i = 0; i < M; i++)
 	{
@@ -54,9 +60,9 @@ void Universe::calculateVolumes(int subspacerank)
 
 	std::vector<double> means(subspaces[subspacerank].cells.size());
 	std::vector<double> stdiv(subspaces[subspacerank].cells.size());
+	std::vector<double> FOM(subspaces[subspacerank].cells.size());
 
-
-
+	double T = t.calcStop();
 
 	for (int i = 0; i < subspaces[subspacerank].cells.size(); i++)
 	{
@@ -67,6 +73,8 @@ void Universe::calculateVolumes(int subspacerank)
 		}
 		means[i] = getMean(tmp_ratios);
 		stdiv[i] = getStddiv(tmp_ratios, means[i]);
+		FOM[i] = getFOM(stdiv[i], T);
+		
 	}
 
 	std::string logfile = "Pointsvol.txt";
@@ -77,17 +85,72 @@ void Universe::calculateVolumes(int subspacerank)
 	log << "Volumes in subspace: " << subspacerank + 1 << "\n";
 
 
-		for (size_t i = 0; i < means.size(); i++)
+		for (int i = 0; i < means.size(); i++)
 	{	
 		log << "Component " << subspaces[subspacerank].printCellName(i)
-			<< " has a mean volume procentage of " << means[i]*totalV;
-		log << " with a std_div of: " << stdiv[i]*totalV << " \n";
+			<< " has a mean volume procentage of " << means[i]* totalV;
+		log << " with a std_div of: " << stdiv[i]*totalV << " ";
+		log << "FOM: " << FOM[i] << " \n";
 	}
 	
 	log.close();
 
 
 
+}
+
+void Universe::plotSlice(double z0, int ID)
+{
+	double point[3];
+
+	point[2] = z0;
+
+	point[0] = subspaces[ID].subspaceranges.x[0];
+	point[1] = subspaces[ID].subspaceranges.y[0];
+
+	double save = point[1];
+
+	double x_r = subspaces[ID].subspaceranges.x[1]
+		- subspaces[ID].subspaceranges.x[0];
+	double y_r = subspaces[ID].subspaceranges.y[1]
+		- subspaces[ID].subspaceranges.y[0];
+
+	int cell_id;
+	
+	std::string logfile;
+
+	logfile = "plot" + std::to_string(ID) + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::app);
+	log << "*************************\n";
+	log << "Ranges: " << x_r << " " << y_r << "\n";
+	log << "x;y;cellID; \n";
+
+	int Nx, Ny;
+	Nx = 100;
+	Ny = 100;
+
+	double x_add = x_r / Nx;
+	double y_add = y_r / Ny;
+
+	for (int i = 0; i < Nx; i++)
+	{
+		for (int j = 0; j < Ny; j++)
+		{
+			cell_id = subspaces[ID].findCellatpoint(point);
+			log	<< cell_id << ";";
+
+			point[1] = point[1] + y_add;
+		}
+		log << "\n";
+		point[0] = point[0] + x_add;
+		point[1] = save;
+	}
+
+	log.close();
+
+	return;
 }
 
 

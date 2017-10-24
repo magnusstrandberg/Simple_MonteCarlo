@@ -1,51 +1,180 @@
+*************************
+Input reader:
+How many Cells: 8
 
+ Cell nr: 1
+Cell Id: 1
+Subspace rank: 1
+Name: Fuel
+How many surfaces components: 1
+Surface ID: 1 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 2
+Cell Id: 2
+Subspace rank: 1
+Name: Cladding
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 1
+Surface ID: 2 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 3
+Cell Id: 3
+Subspace rank: 1
+Name: Coolant
+How many surfaces components: 2
+Surface ID: 2 
+Surface is complement: 1
+Surface ID: 3 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 4
+Cell Id: 4
+Subspace rank: 1
+Name: Outside
+How many surfaces components: 1
+Surface ID: 3 
+Surface is complement: 1
+Contains a Latice: No
+
+ Cell nr: 5
+Cell Id: 1
+Subspace rank: 2
+Name: Inside_bot
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 0
+Surface ID: 3 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 6
+Cell Id: 2
+Subspace rank: 2
+Name: Inside_top
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 0
+Surface ID: 3 
+Surface is complement: 1
+Contains a Latice: No
+
+ Cell nr: 7
+Cell Id: 3
+Subspace rank: 2
+Name: Cylinder_wall
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 1
+Surface ID: 2 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 8
+Cell Id: 4
+Subspace rank: 2
+Name: Outside
+How many surfaces components: 1
+Surface ID: 2 
+Surface is complement: 1
+Contains a Latice: No
 *************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.57
-Turned into: -0.999203 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.57
-Turned into: 1 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.57
-Turned into: 1 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.57
-Turned into: -0.999203 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 1.57 0
-Turned into: 1.0008 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 1.57 0
-Turned into: 1.0008 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 1.57 0
-Turned into: 1 0 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 1.57 0
-Turned into: 0.000796327 0 -1
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.57
-Turned into: 0.000796327 1 0
-*************************
-Test rotations class:
-Dir was: 1 0 0
-Rotated by: 0 0 1.5708
-Turned into: 1.7949e-09 1 0
+Input reader:
+How many Cells: 9
+
+ Cell nr: 1
+Cell Id: 1
+Subspace rank: 1
+Name: Fuel
+How many surfaces components: 1
+Surface ID: 1 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 2
+Cell Id: 2
+Subspace rank: 1
+Name: Cladding
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 1
+Surface ID: 2 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 3
+Cell Id: 3
+Subspace rank: 1
+Name: Coolant
+How many surfaces components: 2
+Surface ID: 2 
+Surface is complement: 1
+Surface ID: 3 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 4
+Cell Id: 4
+Subspace rank: 1
+Name: Outside
+How many surfaces components: 1
+Surface ID: 3 
+Surface is complement: 1
+Contains a Latice: No
+
+ Cell nr: 5
+Cell Id: 1
+Subspace rank: 2
+Name: Inside_bot
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 0
+Surface ID: 3 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 6
+Cell Id: 2
+Subspace rank: 2
+Name: Inside_top
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 0
+Surface ID: 3 
+Surface is complement: 1
+Contains a Latice: No
+
+ Cell nr: 7
+Cell Id: 3
+Subspace rank: 2
+Name: Cylinder_wall
+How many surfaces components: 2
+Surface ID: 1 
+Surface is complement: 1
+Surface ID: 2 
+Surface is complement: 0
+Contains a Latice: No
+
+ Cell nr: 8
+Cell Id: 4
+Subspace rank: 2
+Name: Outside
+How many surfaces components: 1
+Surface ID: 2 
+Surface is complement: 1
+Contains a Latice: No
+
+ Cell nr: 9
+Cell Id: 1
+Subspace rank: 3
+Name: Test
+How many surfaces components: 1
+Surface ID: 1 
+Surface is complement: 0
+Contains a Latice: Yes, of type 1
+Inside is subspace: 2

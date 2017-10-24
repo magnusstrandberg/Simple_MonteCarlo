@@ -19,25 +19,31 @@ M = 100;
 %Cell =  test_cell; 6; 10; 3;5,0,60,1,55,0;
 %Subspace = 1;99;
 
-%Surf = cylinder;1;1;0;3;0,0,0;0.412;
-%Surf = cylinder;2;1;0;3;0,0,0;0.475;
-%Surf = square_prism_inf;3;1;1.330;1.330;3;0,0,0;
+Surf = cylinder;1;1;0;3;0,0,0;0.412;
+Surf = cylinder;2;1;0;3;0,0,0;0.475;
+Surf = square_prism_inf;3;1;1.330;1.330;3;0,0,0;
 
-Cell = Fuel;1;1; 1;1,0;
-Cell = Cladding;2;1; 2;1,1,2,0;
-Cell = Coolant;3;1; 2;2,1, 3,0;
-Cell = Outside;4;1; 1;3,1;
+Cell = Fuel;1;1; 1;1,0;0;
+Cell = Cladding;2;1; 2;1,1,2,0;0;
+Cell = Coolant;3;1; 2;2,1, 3,0;0;
+Cell = Outside;4;1; 1;3,1;0;
 
 Subspace = 1;4;-0.665,0.665,-0.665,0.665,0,1;
 
-%Surf = cylinder;1;2;7;3;0,0,-3.5;2;
-%Surf = cylinder;2;2;7.1;3;0,0,-3.55;2.05;
-%Surf = para_plane;3;2;3;0;
+Surf = cylinder;1;2;7;3;0,0,-3.5;2;
+Surf = cylinder;2;2;7.1;3;0,0,-3.55;2.05;
+Surf = para_plane;3;2;3;0;
 
-Cell = Inside_bot; 1;2; 2; 1,0,3,0;
-Cell = Inside_top; 2;2; 2; 1,0,3,1;
-Cell = Cylinder_wall; 3;2; 2; 1,1,2,0;
-Cell = Outside; 4;2; 1;2,1;
+Cell = Inside_bot; 1;2; 2; 1,0,3,0;0;
+Cell = Inside_top; 2;2; 2; 1,0,3,1;0;
+Cell = Cylinder_wall; 3;2; 2; 1,1,2,0;0;
+Cell = Outside; 4;2; 1;2,1;0;
 
 Subspace = 2;4;-2.05,2.05,-2.05,2.05,-3.55,3.55;
 
+Surf = Hex; 1; 3; 10; 3; 0,0,0; 1;
+
+Cell = HexPrism; 1;3; 1; 1,0;0;0;
+Cell = out; 1;3; 1; 1,1;0;0;
+
+Subspace = 3;2;-1.1,1.1,-1.1,1.1,0,10;

@@ -27,13 +27,15 @@ int main()
 	//testInputCompSurf(input_data);
 	//testInputCell(input_data); 
 	//testInputSubspace(input_data);
-	/*
+	
 	Universe uni;
 	uni.buildSubspaces(input_data);
 	uni.calculateVolumes(0);
 	uni.calculateVolumes(1);
-	*/
-	testRotations();
+	uni.calculateVolumes(2);
+	//uni.plotSlice(0.5, 2);
+	
+	//testRotations();
 	
 
 
@@ -93,6 +95,16 @@ void testInputCell(Input input_data)
 				input_data.Cell_input_data[i].cell_complements[j].comp_surface_id << " \n";
 			log << "Surface is complement: " << 
 					input_data.Cell_input_data[i].cell_complements[j].cell_complement << "\n";
+		}
+		log << "Contains a Latice: ";
+		if (input_data.Cell_input_data[i].latice_info.type == 0)
+		{
+			log << "No\n";
+		}
+		else
+		{
+			log << "Yes, of type " << input_data.Cell_input_data[i].latice_info.type << "\n";
+			log << "Inside is subspace: " << input_data.Cell_input_data[i].latice_info.subspace_inside << "\n";
 		}
 	}
 	log.close();

@@ -212,7 +212,31 @@ void Input::cellCreator(const std::string data)
 		some_cell.cell_complements.push_back(a_comp);
 	}
 
+	old = split + 1;
+	split = data.find(';', old);
 
+	//Contains Latice (0 is no, 1 is square, 2 hexa)
+	int latice = stoi(data.substr(old, split));
+
+	some_cell.latice_info.type = latice;
+
+	if (latice > 0)
+	{
+
+		old = split + 1;
+		split = data.find(';', old);
+
+		//subspace inside
+		some_cell.latice_info.subspace_inside = stoi(data.substr(old, split));
+
+		old = split + 1;
+		split = data.find(';', old);
+		if (latice == 2)
+		{
+			//hexa pitch
+			some_cell.latice_info.hexa_pitch = stoi(data.substr(old, split));
+		}
+	}
 
 	Cell_input_data.push_back(some_cell);
 	return;

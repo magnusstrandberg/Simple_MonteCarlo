@@ -15,6 +15,14 @@ enum Surf_type
 	prism_hex_inf,
 };
 
+struct Latice
+{
+	int type;
+	int subspace_inside;
+	int hexa_pitch; //placeholder
+
+};
+
 struct ranges
 {
 	std::vector <double> x;
@@ -41,6 +49,7 @@ struct Cell_input
 	int subspace_rank;
 	std::string cell_name;
 	std::vector <cell_comp> cell_complements;
+	Latice latice_info;
 };
 
 struct Surf_input
