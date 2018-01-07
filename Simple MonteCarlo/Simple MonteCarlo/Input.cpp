@@ -87,6 +87,11 @@ void Input::createDataSet(const std::string para, std::string value)
 		subspaceCreator(value);
 		return;
 	}
+	if (para == "Transform")
+	{
+		transformCreator(value);
+		return;
+	}
 	//Simple numerical values can be handled directly, removing ;
 	value.erase(std::remove(value.begin(), value.end(), ';'), value.end());
 	if (para == "N") { 
@@ -1048,6 +1053,136 @@ void Input::surfHexPrism(const std::string values, Surf_input prism)
 	Complex_surf_input.push_back(prism);
 
 	return;
+}
+
+void Input::transformCreator(const std::string data)
+{
+	string::size_type split = data.find(';');
+	string::size_type old;
+	//Targets ID
+	int targetID;
+	targetID = stoi(data.substr(0, split));
+
+
+	old = split + 1;
+	split = data.find(';', old);
+	//Target type
+	int type;
+	type = stoi(data.substr(old, split));
+
+	old = split + 1;
+	split = data.find(';', old);
+
+	if (type == 1)
+	{
+		size_t i = 0;
+		for (size_t j = 0; j < Complex_surf_input.size(); j++)
+		{
+			if (Cell_input_data[j].Cell_id == targetID)
+			{
+				i = j;
+				break;
+			}
+		}
+		//is moved 1 or 0(no)
+		if (stoi(data.substr(old, split)) == 1)
+		{
+			Cell_input_data[i].moved = true;
+			old = split + 1;
+			split = data.find(';', old);
+			//x
+			Cell_input_data[i].place.push_back(stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//y
+			Cell_input_data[i].place.push_back(stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//z
+			Cell_input_data[i].place.push_back(stod(data.substr(old, split)));
+
+					
+		}
+		old = split + 1;
+		split = data.find(';', old);
+		//rotated yes no
+		if (stoi(data.substr(old, split)) == 1)
+		{
+			Cell_input_data[i].rotated = true;
+			old = split + 1;
+			split = data.find(';', old);
+			//x
+			Cell_input_data[i].angles.push_back(-1 * stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//y
+			Cell_input_data[i].angles.push_back(-1 * stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//z
+			Cell_input_data[i].angles.push_back(-1 * stod(data.substr(old, split)));
+				
+			
+		}
+	}
+	else if (type == 2)
+	{
+		size_t i = 0;
+		for (size_t j = 0; j < Complex_surf_input.size(); j++)
+		{
+			if (Complex_surf_input[j].complex_id == targetID)
+			{
+				i = j;
+				break;
+			}
+		}
+		if (stoi(data.substr(old, split)) == 1)
+		{
+			Complex_surf_input[i].moved = true;
+			old = split + 1;
+			split = data.find(';', old);
+			//x
+			Complex_surf_input[i].place.push_back(stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//y
+			Complex_surf_input[i].place.push_back(stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//z
+			Complex_surf_input[i].place.push_back(stod(data.substr(old, split)));
+
+		}
+
+		old = split + 1;
+		split = data.find(';', old);
+
+		if (stoi(data.substr(old, split)) == 1)
+		{
+			Complex_surf_input[i].rotated = true;
+			old = split + 1;
+			split = data.find(';', old);
+			//x
+			Complex_surf_input[i].angles.push_back(-1 * stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//y
+			Complex_surf_input[i].angles.push_back(-1 * stod(data.substr(old, split)));
+
+			old = split + 1;
+			split = data.find(';', old);
+			//z
+			Complex_surf_input[i].angles.push_back(-1 * stod(data.substr(old, split)));
+		}
+
+	}
 }
 
 

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
+    <Text Include="linevol.txt" />
     <Text Include="log.txt" />
     <Text Include="Pointsvol.txt" />
     <Text Include="read.txt" />

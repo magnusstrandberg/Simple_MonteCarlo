@@ -93,5 +93,8 @@
     <Text Include="Pointsvol.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="linevol.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

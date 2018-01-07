@@ -119,7 +119,7 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 			+ (surf_param[8] * position[2])
 			+ surf_param[9];
 
-		L = (2 * ((surf_param[0] * position[0] * direction[0]))
+		L = (2 * ((surf_param[0] * position[0] * direction[0])
 			+ (surf_param[1] * position[1] * direction[1])
 			+ (surf_param[2] * position[2] * direction[2]))
 			+ (surf_param[3] * ((position[0] * direction[1]) + (position[1] * direction[0])))
@@ -127,7 +127,7 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 			+ (surf_param[5] * ((position[0] * direction[2]) + (position[2] * direction[0])))
 			+ (surf_param[6] * position[0])
 			+ (surf_param[7] * position[1])
-			+ (surf_param[8] * position[2]);
+			+ (surf_param[8] * position[2]));
 
 		M = (surf_param[0] * pow(direction[0], 2))
 			+ (surf_param[1] * pow(direction[1], 2))
@@ -144,8 +144,8 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 
 		if (square_value > 0)
 		{
-			double tmp[] = { ((-M + sqrt(square_value)) / (2 * M)), ((-M - sqrt(square_value)) / (2 * M)) };
-			if (abs(tmp[0]) < abs(tmp[1])) {
+			double tmp[] = { (((-1*L) - sqrt(square_value)) / (2 * M)), (((-1*L) + sqrt(square_value)) / (2 * M)) };
+			if (0 < tmp[0]) {
 				distance[0] = tmp[0];
 				distance[1] = tmp[1];
 			}
@@ -153,7 +153,7 @@ int Surface::distToSurf(double * position, double * direction, double * distance
 				distance[0] = tmp[1];
 				distance[1] = tmp[0];
 			}
-			return 2;
+			return 1;
 		}
 		else if (square_value < 10e-14 && square_value > 0)
 		{

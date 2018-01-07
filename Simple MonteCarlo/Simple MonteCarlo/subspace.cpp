@@ -26,6 +26,16 @@ void subspace::makeSubspace(subspace_input subspace_data,
 	Id = subspace_data.subspace_id;
 	boundry_id = subspace_data.boundery_cell_id;
 	subspaceranges = subspace_data.subspacerange;
+
+	x_r = subspaceranges.x[1]
+		- subspaceranges.x[0];
+	y_r = subspaceranges.y[1]
+		- subspaceranges.y[0];
+	z_r = subspaceranges.z[1]
+		- subspaceranges.z[0];
+
+	totalV = x_r * y_r * z_r;
+
 	for (int i = 0; i < Complex_surf_input.size(); i++)
 	{
 		//Okey, as all different sub-spaces have their own cells and surfaces.
@@ -45,6 +55,15 @@ void subspace::makeSubspace(subspace_input subspace_data,
 			cells.back().createCellfromCompSurf(Cell_input_data[i], complex_surfs);
 		}
 	}
+
+	for (size_t i = 0; i < cells.size(); i++)
+	{
+		if (boundry_id == cells[i].cell_id)
+		{
+			boundry_index = i;
+		}
+	}
+	return;
 }
 
 
@@ -70,7 +89,6 @@ int subspace::findCellatpoint(double * point)
 			}
 		}
 	}
-
 	return -1;
 }
 
@@ -96,6 +114,17 @@ void complex_surf::createComplexSurface(Surf_input input)
 {
 	complex_id = input.complex_id;
 	type = input.type;
+	moved = input.moved;
+	if (moved)
+	{
+		place = input.place;
+	}
+	rotated = input.rotated;
+	if (rotated)
+	{
+		angles = input.angles;
+		Rota.make(angles);
+	}
 	for (int i = 0; i < input.surf_ids.size(); i++)
 		{
 			surfs.push_back(Surface());
@@ -109,9 +138,27 @@ int complex_surf::insideComplexSurface(double * position, bool complemnt)
 {
 		bool inside = true;
 		int value = 0;
+		double position_tmp[3];
+
+		position_tmp[0] = position[0];
+		position_tmp[1] = position[1];
+		position_tmp[2] = position[2];
+
+		if (moved)
+		{
+			position_tmp[0] = position_tmp[0] - place[0];
+			position_tmp[1] = position_tmp[1] - place[1];
+			position_tmp[2] = position_tmp[2] - place[2];
+		}
+
+		if (rotated)
+		{
+			Rota.Rotation(position_tmp);
+		}
+
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if (surfs[i].insideSurf(position, complements[i]) != -1)
+			if (surfs[i].insideSurf(position_tmp, complements[i]) != -1)
 			{
 				inside = false;
 				break;
@@ -131,15 +178,64 @@ int complex_surf::insideComplexSurface(double * position, bool complemnt)
 		}
 }
 
+int complex_surf::insideComplexSurfaceNRM(double * position, bool complemnt)
+{
+	bool inside = true;
+	int value = 0;
+	double * position_tmp = position;
+
+
+
+	for (int i = 0; i < surfs.size(); i++)
+	{
+		if (surfs[i].insideSurf(position_tmp, complements[i]) != -1)
+		{
+			inside = false;
+			break;
+		}
+	}
+
+	if (inside) value = -1;
+	else value = 1;
+
+	if (complemnt)
+	{
+		return (-1 * value);
+	}
+	else
+	{
+		return value;
+	}
+}
+
 
 double complex_surf::distanceComplexSurface(double * position, double * direction)
 {
 	double tmp[2];
+
+	double position_tmp[3];
+
+	position_tmp[0] = position[0];
+	position_tmp[1] = position[1];
+	position_tmp[2] = position[2];
+
+	if (moved)
+	{
+		position_tmp[0] = position_tmp[0] - place[0];
+		position_tmp[1] = position_tmp[1] - place[1];
+		position_tmp[2] = position_tmp[2] - place[2];
+	}
+
+	if (rotated)
+	{
+		Rota.Rotation(position_tmp);
+	}
+
 	switch (type)
 	{
 	case plane:
 		{
-		if (surfs[0].distToSurf(position, direction, tmp) == 1) 
+		if (surfs[0].distToSurf(position_tmp, direction, tmp) == 1)
 		{
 			return tmp[0];
 			
@@ -149,7 +245,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		}
 	case cylinder_inf:
 		{
-		if (surfs[0].distToSurf(position, direction, tmp) == 1)
+		if (surfs[0].distToSurf(position_tmp, direction, tmp) == 1)
 		{
 			return tmp[0];
 		}
@@ -158,7 +254,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		}
 	case sphere:
 		{
-		if (surfs[0].distToSurf(position, direction, tmp) == 1)
+		if (surfs[0].distToSurf(position_tmp, direction, tmp) == 1)
 		{
 			return tmp[0];
 		}
@@ -170,7 +266,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		std::vector <double> tries;
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if(surfs[i].distToSurf(position, direction, tmp) ==1 )
+			if(surfs[i].distToSurf(position_tmp, direction, tmp) ==1 )
 				tries.push_back(tmp[0]);
 		}
 		std::sort(tries.begin(),tries.end());
@@ -182,11 +278,11 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 			{
 				continue;
 			}
-			newpos[0] = position[0] + tries[i] * direction[0]+epsilon;
-			newpos[1] = position[1] + tries[i] * direction[1]+epsilon;
-			newpos[2] = position[2] + tries[i] * direction[2]+epsilon;
+			newpos[0] = position_tmp[0] + tries[i] * direction[0]+epsilon;
+			newpos[1] = position_tmp[1] + tries[i] * direction[1]+epsilon;
+			newpos[2] = position_tmp[2] + tries[i] * direction[2]+epsilon;
 
-			if (insideComplexSurface(position,0) != insideComplexSurface(newpos,0))
+			if (insideComplexSurfaceNRM(position_tmp,0) != insideComplexSurfaceNRM(newpos,0))
 			{
 				return tries[i];
 			}
@@ -200,7 +296,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		std::vector <double> tries;
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if (surfs[i].distToSurf(position, direction, tmp) == 1)
+			if (surfs[i].distToSurf(position_tmp, direction, tmp) == 1)
 				tries.push_back(tmp[0]);
 		}
 		std::sort(tries.begin(), tries.end());
@@ -212,11 +308,11 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 			{
 				continue;
 			}
-			newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
-			newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
-			newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+			newpos[0] = position_tmp[0] + tries[i] * direction[0] + epsilon;
+			newpos[1] = position_tmp[1] + tries[i] * direction[1] + epsilon;
+			newpos[2] = position_tmp[2] + tries[i] * direction[2] + epsilon;
 
-			if (insideComplexSurface(position, 0) != insideComplexSurface(newpos, 0))
+			if (insideComplexSurfaceNRM(position_tmp, 0) != insideComplexSurfaceNRM(newpos, 0))
 			{
 				return tries[i];
 			}
@@ -229,7 +325,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		std::vector <double> tries;
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if (surfs[i].distToSurf(position, direction, tmp) == 1)
+			if (surfs[i].distToSurf(position_tmp, direction, tmp) == 1)
 				tries.push_back(tmp[0]);
 		}
 		std::sort(tries.begin(), tries.end());
@@ -241,11 +337,11 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 			{
 				continue;
 			}
-			newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
-			newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
-			newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+			newpos[0] = position_tmp[0] + tries[i] * direction[0] + epsilon;
+			newpos[1] = position_tmp[1] + tries[i] * direction[1] + epsilon;
+			newpos[2] = position_tmp[2] + tries[i] * direction[2] + epsilon;
 
-			if (insideComplexSurface(position, 0) != insideComplexSurface(newpos, 0))
+			if (insideComplexSurfaceNRM(position_tmp, 0) != insideComplexSurfaceNRM(newpos, 0))
 			{
 				return tries[i];
 			}
@@ -259,7 +355,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		std::vector <double> tries;
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if (surfs[i].distToSurf(position, direction, tmp) == 1)
+			if (surfs[i].distToSurf(position_tmp, direction, tmp) == 1)
 				tries.push_back(tmp[0]);
 		}
 		std::sort(tries.begin(), tries.end());
@@ -271,11 +367,11 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 			{
 				continue;
 			}
-			newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
-			newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
-			newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+			newpos[0] = position_tmp[0] + tries[i] * direction[0] + epsilon;
+			newpos[1] = position_tmp[1] + tries[i] * direction[1] + epsilon;
+			newpos[2] = position_tmp[2] + tries[i] * direction[2] + epsilon;
 
-			if (insideComplexSurface(position, 0) != insideComplexSurface(newpos, 0))
+			if (insideComplexSurfaceNRM(position_tmp, 0) != insideComplexSurfaceNRM(newpos, 0))
 			{
 				return tries[i];
 			}
@@ -288,7 +384,7 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 		std::vector <double> tries;
 		for (int i = 0; i < surfs.size(); i++)
 		{
-			if (surfs[i].distToSurf(position, direction, tmp) == 1)
+			if (surfs[i].distToSurf(position_tmp, direction, tmp) == 1)
 				tries.push_back(tmp[0]);
 		}
 		std::sort(tries.begin(), tries.end());
@@ -300,11 +396,11 @@ double complex_surf::distanceComplexSurface(double * position, double * directio
 			{
 				continue;
 			}
-			newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
-			newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
-			newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+			newpos[0] = position_tmp[0] + tries[i] * direction[0] + epsilon;
+			newpos[1] = position_tmp[1] + tries[i] * direction[1] + epsilon;
+			newpos[2] = position_tmp[2] + tries[i] * direction[2] + epsilon;
 
-			if (insideComplexSurface(position, 0) != insideComplexSurface(newpos, 0))
+			if (insideComplexSurfaceNRM(position_tmp, 0) != insideComplexSurfaceNRM(newpos, 0))
 			{
 				return tries[i];
 			}
@@ -334,6 +430,17 @@ void cell::createCellfromCompSurf(Cell_input input, std::vector <complex_surf> c
 {
 	cell_id = input.Cell_id;
 	cell_name = input.cell_name;
+	moved = input.moved;
+	if (moved)
+	{
+		place = input.place;
+	}
+	rotated = input.rotated;
+	if (rotated)
+	{
+		angles = input.angles;
+		Rota.make(angles);
+	}
 
 	for (int i = 0; i < comp.size(); i++)
 	{
@@ -355,11 +462,74 @@ void cell::createCellfromCompSurf(Cell_input input, std::vector <complex_surf> c
 
 int cell::insideCell(double * position, bool complement)
 {
+
 	bool inside = true;
 	int value = 0;
+
+	double position_tmp[3];
+
+	position_tmp[0] = position[0];
+	position_tmp[1] = position[1];
+	position_tmp[2] = position[2];
+
+	if (moved)
+	{
+		position_tmp[0] = position_tmp[0] - place[0];
+		position_tmp[1] = position_tmp[1] - place[1];
+		position_tmp[2] = position_tmp[2] - place[2];
+	}
+
+	if (rotated)
+	{
+		Rota.Rotation(position_tmp);
+	}
+
 	for (int i = 0; i < components.size(); i++)
 	{
-		if (components[i].insideComplexSurface(position, comp_cell_lvl[i]) != -1)
+		if (components[i].insideComplexSurface(position_tmp, comp_cell_lvl[i]) != -1)
+		{
+			inside = false;
+			break;
+		}
+	}
+
+	if (inside) value = -1;
+	else value = 1;
+
+	if (complement)
+	{
+		return (-1 * value);
+	}
+	else
+	{
+		return value;
+	}
+
+}
+
+int cell::insideCellNRM(double * position, bool complement)
+{
+
+	bool inside = true;
+	int value = 0;
+
+	double * position_tmp = position;
+
+	if (moved)
+	{
+		position_tmp[0] = position_tmp[0] - place[0];
+		position_tmp[1] = position_tmp[1] - place[1];
+		position_tmp[2] = position_tmp[2] - place[2];
+	}
+
+	if (rotated)
+	{
+		Rota.Rotation(position_tmp);
+	}
+
+	for (int i = 0; i < components.size(); i++)
+	{
+		if (components[i].insideComplexSurface(position_tmp, comp_cell_lvl[i]) != -1)
 		{
 			inside = false;
 			break;
@@ -381,11 +551,32 @@ int cell::insideCell(double * position, bool complement)
 }
 
 double cell::distanceCell(double * position, double * direction)
+//Calculates distance to cell from a point at a certain direction. Position, direction
 {
 	std::vector <double> tries;
+
+	double position_tmp[3];
+
+	position_tmp[0] = position[0];
+	position_tmp[1] = position[1];
+	position_tmp[2] = position[2];
+
+	if (moved)
+	{
+		position_tmp[0] = position_tmp[0] - place[0];
+		position_tmp[1] = position_tmp[1] - place[1];
+		position_tmp[2] = position_tmp[2] - place[2];
+	}
+
+	if (rotated)
+	{
+		Rota.Rotation(position_tmp);
+	}
+
+
 	for (int i = 0; i < components.size(); i++)
 	{
-			tries.push_back(components[i].distanceComplexSurface(position, direction));
+			tries.push_back(components[i].distanceComplexSurface(position_tmp, direction));
 	}
 	std::sort(tries.begin(), tries.end());
 	double epsilon = 10e-10;
@@ -396,15 +587,15 @@ double cell::distanceCell(double * position, double * direction)
 		{
 			continue;
 		}
-		newpos[0] = position[0] + tries[i] * direction[0] + epsilon;
-		newpos[1] = position[1] + tries[i] * direction[1] + epsilon;
-		newpos[2] = position[2] + tries[i] * direction[2] + epsilon;
+		newpos[0] = position_tmp[0] + tries[i] * direction[0] + epsilon;
+		newpos[1] = position_tmp[1] + tries[i] * direction[1] + epsilon;
+		newpos[2] = position_tmp[2] + tries[i] * direction[2] + epsilon;
 
-		if (insideCell(position, 0) != insideCell(newpos, 0))
+		if (insideCellNRM(position_tmp, 0) != insideCellNRM(newpos, 0))
 		{
 			return tries[i];
 		}
 	}
 	return -1;
-	return 0.0;
+
 }

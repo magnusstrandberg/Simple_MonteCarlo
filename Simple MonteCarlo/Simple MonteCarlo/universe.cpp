@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <utility>
 
 
 
@@ -38,12 +38,7 @@ void Universe::buildSubspaces(Input data)
 
 void Universe::calculateVolumes(int subspacerank)
 {
-	double totalV = (subspaces[subspacerank].subspaceranges.x[1]
-					- subspaces[subspacerank].subspaceranges.x[0])
-				* (subspaces[subspacerank].subspaceranges.y[1]
-					- subspaces[subspacerank].subspaceranges.y[0])
-				* (subspaces[subspacerank].subspaceranges.z[1]
-					- subspaces[subspacerank].subspaceranges.z[0]);
+	double totalV = subspaces[subspacerank].totalV;
 	
 	timer t;
 	t.startTime();
@@ -122,7 +117,7 @@ void Universe::plotSlice(double z0, int ID)
 	logfile = "plot" + std::to_string(ID) + ".txt";
 
 	std::ofstream log;
-	log.open(logfile, std::ios::out | std::ios::app);
+	log.open(logfile, std::ios::out | std::ios::trunc);
 	log << "*************************\n";
 	log << "Ranges: " << x_r << " " << y_r << "\n";
 	log << "x;y;cellID; \n";
@@ -163,20 +158,13 @@ std::vector<int> Universe::pointVolume(int subspaceRank)
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
 
-	double x_r = subspaces[subspaceRank].subspaceranges.x[1]
-		- subspaces[subspaceRank].subspaceranges.x[0];
-	double y_r = subspaces[subspaceRank].subspaceranges.y[1]
-		- subspaces[subspaceRank].subspaceranges.y[0];
-	double z_r = subspaces[subspaceRank].subspaceranges.z[1]
-		- subspaces[subspaceRank].subspaceranges.z[0];
-
 	#pragma omp parallel for schedule(dynamic,1)
 	for (int i = 0; i < N; i++)
 	{
 		double point[3];
-		point[0] = (dis(gen) * x_r) + subspaces[subspaceRank].subspaceranges.x[0];
-		point[1] = (dis(gen) * y_r) + subspaces[subspaceRank].subspaceranges.y[0];
-		point[2] = (dis(gen) * z_r) + subspaces[subspaceRank].subspaceranges.z[0];
+		point[0] = (dis(gen) * subspaces[subspaceRank].x_r) + subspaces[subspaceRank].subspaceranges.x[0];
+		point[1] = (dis(gen) * subspaces[subspaceRank].y_r) + subspaces[subspaceRank].subspaceranges.y[0];
+		point[2] = (dis(gen) * subspaces[subspaceRank].z_r) + subspaces[subspaceRank].subspaceranges.z[0];
 
 		cell_indexes[i] = subspaces[subspaceRank].findCellatpoint(point);
 
@@ -193,3 +181,195 @@ std::vector<int> Universe::pointVolume(int subspaceRank)
 	return hit;
 }
 
+void Universe::CalculateLineVolume(int subspacerank)
+{
+
+	double Volume = subspaces[subspacerank].totalV;
+
+	timer t;
+	t.startTime();
+
+	std::vector <std::vector <double> > volpercentages
+	(M, std::vector<double>(subspaces[subspacerank].cells.size()));
+
+	for (int i = 0; i < M; i++)
+	{
+		volpercentages[i];
+	}
+
+	double T = t.calcStop();
+
+	std::vector<double> means (subspaces[subspacerank].cells.size());
+	std::vector<double> stdiv (subspaces[subspacerank].cells.size());
+	std::vector<double> FOM (subspaces[subspacerank].cells.size());
+
+	for (size_t i = 0; i < subspaces[subspacerank].cells.size(); i++)
+	{
+		std::vector <double> tmp_percents (M,0);
+		for (size_t j = 0; j < M; j++)
+		{
+			tmp_percents[j] = volpercentages[j][i];
+		}
+		means[i] = getMean(tmp_percents);
+		stdiv[i] = getStddiv(tmp_percents, means[i]);
+		FOM[i] = getFOM(stdiv[i], T);
+	}
+
+	
+	std::string logfile = "linevol.txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::app);
+	log << "*************************\n";
+	log << "The Volume calculated by lines in subspace " << subspacerank + 1 << "\n \n";
+
+	for (int i = 0; i < means.size(); i++)
+	{
+		log << "Mean volume of " << subspaces[subspacerank].printCellName(i);
+		log << " is " << means[i] << " % \n";
+		log << "With a STD Div of " << stdiv[i] <<"and a FOM of: " << FOM[i] <<"\n";
+	}
+	log.close(); 
+	return;
+}
+
+std::vector<double> Universe::lineCalc(int subspacerank)
+{
+	// Vector containg the total length, and individual lengths of each cell
+	std::vector <std::vector <double> > Nlengths
+	(N, std::vector <double>(subspaces[subspacerank].cells.size()+1));
+	//Container for per centages
+	std::vector <double> volpercentages(subspaces[subspacerank].cells.size(), 0);
+	
+	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+
+	#pragma omp parallel for schedule(dynamic,1)
+	for (int i = 0; i < N; i++)
+	{
+
+		int startside = floor(dis(gen) * 3);
+
+		double direction[3];
+		Randomdirfrombound(startside, direction);
+		double epsilon = 10e-10;
+		std::vector <std::pair<double, int>> lengths;
+		std::pair <double, int> tmp_data;
+		std::vector <std::pair<double, int>> tmp_list;
+
+		double point[] = { 0,0,0 };
+
+		if (startside == 0)
+		{
+			point[0] = subspaces[subspacerank].subspaceranges.x[0] + epsilon;
+			point[1] = dis(gen) * subspaces[subspacerank].y_r - subspaces[subspacerank].subspaceranges.y[0];
+			point[2] = dis(gen) * subspaces[subspacerank].z_r - subspaces[subspacerank].subspaceranges.z[0];
+		}
+		else if (startside == 1)
+		{
+			point[0] = dis(gen) * subspaces[subspacerank].x_r - subspaces[subspacerank].subspaceranges.x[0];
+			point[1] = subspaces[subspacerank].subspaceranges.y[0] + epsilon;
+			point[2] = dis(gen) * subspaces[subspacerank].z_r - subspaces[subspacerank].subspaceranges.z[0];
+		}
+		else
+		{
+			point[0] = dis(gen) * subspaces[subspacerank].x_r - subspaces[subspacerank].subspaceranges.x[0];
+			point[1] = dis(gen) * subspaces[subspacerank].y_r - subspaces[subspacerank].subspaceranges.y[0];
+			point[2] = subspaces[subspacerank].subspaceranges.z[0] + epsilon;
+		}
+
+
+		do
+		{
+			for (size_t i = 0; i < subspaces[subspacerank].cells.size(); i++)
+			{
+				double tmp = subspaces[subspacerank].cells[i].distanceCell(point, direction);
+				if (0.0 < tmp)
+				{
+					tmp_data.first = tmp;
+					tmp_data.second = -1;
+					tmp_list.push_back(tmp_data);
+				}
+			}
+
+			std::sort(tmp_list.begin(), tmp_list.end());
+			tmp_list[0].second = subspaces[subspacerank].findCellatpoint(point);
+			lengths.push_back(tmp_list[0]);
+
+			point[0] = point[0] + tmp_list[0].first * direction[0] + epsilon;
+			point[1] = point[1] + tmp_list[0].first * direction[1] + epsilon;
+			point[2] = point[2] + tmp_list[0].first * direction[2] + epsilon;
+
+			tmp_list.clear();
+
+		} while (subspaces[subspacerank].cells[subspaces[subspacerank].boundry_index].insideCell(point, 0) == 1);
+
+		std::vector <double> tmp_lengths(subspaces[subspacerank].cells.size() + 1, 0);
+
+		for (size_t j = 0; j < lengths.size(); j++)
+		{
+			tmp_lengths[0] += lengths[j].first;
+			tmp_lengths[lengths[j].second+1] += lengths[j].first;
+		}
+
+		Nlengths[i] = tmp_lengths;
+
+	}
+
+	 //sum of all line segments in N runs 
+	std::vector <double> sumlengths (subspaces[subspacerank].cells.size() + 1,0);
+	
+	for (int i = 0; i < N; i++)
+	{
+		#pragma omp parallel for schedule(dynamic,1)
+		for (int j = 0; j < sumlengths.size(); j++)
+		{
+			sumlengths[j] += Nlengths[i][j];
+		}
+	}
+
+	for (size_t i = 0; i < volpercentages.size(); i++)
+	{
+		volpercentages[i] = sumlengths[i + 1] / sumlengths[0];
+	}
+	
+	return volpercentages;
+}
+
+void Universe::Randomdirfrombound(int startside,double * dir)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+	
+	// startside 0= -x boundery surf, 1 = Y, 2 = Z
+
+	if (startside == 0)
+	{
+		dir[0] = dis(gen);
+		dir[1] = (dis(gen) * 2) -1;
+		dir[2] = (dis(gen) * 2)- 1;
+	}
+	else if (startside == 1)
+	{
+		dir[0] = (dis(gen) * 2) - 1;
+		dir[1] = dis(gen); 
+		dir[2] = (dis(gen) * 2) - 1;
+	}
+	else
+	{
+		dir[0] = (dis(gen) * 2) - 1;
+		dir[1] = (dis(gen) * 2) - 1;
+		dir[2] = dis(gen);
+	}
+
+	double norm = sqrt(pow(dir[0], 2) + pow(dir[1], 2) + pow(dir[2], 2));
+
+	dir[0] = dir[0] / norm;
+	dir[1] = dir[1] / norm;
+	dir[2] = dir[2] / norm;
+
+	return;
+}

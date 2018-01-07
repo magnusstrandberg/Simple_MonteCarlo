@@ -1,0 +1,11 @@
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 0 % 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Cladding is 0 % 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Coolant is 0 % 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Outside is 0 % 
+With a STD Div of 0and a FOM of: inf

@@ -50,6 +50,11 @@ struct Cell_input
 	std::string cell_name;
 	std::vector <cell_comp> cell_complements;
 	Latice latice_info;
+	bool moved = false;
+	std::vector <double> place;
+	bool rotated = false;
+	std::vector <double> angles;
+
 };
 
 struct Surf_input
@@ -60,6 +65,10 @@ struct Surf_input
 	std::vector <std::vector <double> > Surfparams;
 	std::vector <int> surf_ids;
 	std::vector <bool> complement;
+	bool moved = false;
+	std::vector <double> place;
+	bool rotated = false;
+	std::vector <double> angles;
 };
 class Input
 {
@@ -89,6 +98,7 @@ private:
 	void surfCubid(const std::string, Surf_input);
 	void surfSquarePrismInf(const std::string, Surf_input);
 	void createDataSet(const std::string, const std::string);
+	void transformCreator(const std::string data);
 
 };
 

@@ -9,13 +9,14 @@
 #include "subspace.h"
 #include "universe.h"
 #include "Rotations.h"
+#include <vector>
 
 using namespace std;
 void fileReader(string);
 void testInputCompSurf(Input);
 void testInputCell(Input);
 void testInputSubspace(Input);
-void testRotations();
+
 
 
 int main()
@@ -30,14 +31,22 @@ int main()
 	
 	Universe uni;
 	uni.buildSubspaces(input_data);
-	uni.calculateVolumes(0);
-	uni.calculateVolumes(1);
-	uni.calculateVolumes(2);
-	//uni.plotSlice(0.5, 2);
+	//uni.calculateVolumes(0);
+	//uni.calculateVolumes(1);
+	//uni.calculateVolumes(2);
+	//uni.plotSlice(0.0, 0);
 	
 	//testRotations();
 	
+	double direction[3];
+	direction[0] = 1;
+	direction[1] = 0;
+	direction[2] = 0;
 
+	double point[] = { 1, 0, 0.0 };
+	int hmm = uni.subspaces[0].findCellatpoint(point);
+	double test = uni.subspaces[0].complex_surfs[1].distanceComplexSurface(point, direction);
+	uni.CalculateLineVolume(0);
 
 	return 0;
 }
@@ -144,32 +153,5 @@ void testInputSubspace(Input input_data)
 	log.close();
 	return;
 }
-void testRotations()
-{
-	ofstream log;
-	log.open("read.txt", ios::out | ios::app);
-	log << "*************************\n";
 
-	log << "Test rotations class:\n";
-
-	double dir[] = { 1,0,0 };
-	double dirR[3];
-	double angs[] = {0,0,0};
-
-	Rotations r;
-	r.Rotation(dir,dirR,angs);
-
-	log << "Dir was: " << dir[0]
-		<< " " << dir[1]
-		<< " " << dir[2] << "\n";
-	log << "Rotated by: " << angs[0]
-		<< " " << angs[1]
-		<< " " << angs[2] << "\n";
-	log << "Turned into: " << dirR[0]
-		<< " " << dirR[1]
-		<< " " << dirR[2] << "\n";
-		
-	log.close();
-	return;
-}
 

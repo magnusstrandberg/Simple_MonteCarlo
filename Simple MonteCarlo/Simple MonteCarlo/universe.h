@@ -11,7 +11,6 @@
 #include <fstream>
 
 
-
 class Universe
 {
 public:
@@ -21,6 +20,12 @@ public:
 	void calculateVolumes(int);
 	void plotSlice(double, int);
 	std::vector <int> pointVolume(int);
+
+	void CalculateLineVolume(int subspacerank);
+
+	std::vector<double> lineCalc(int subspacerank);
+
+	void Randomdirfrombound(int startside, double * dir);
 
 	std::vector <subspace> subspaces;
 private:
