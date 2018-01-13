@@ -33,6 +33,37 @@ void Universe::buildSubspaces(Input data)
 		subspaces.push_back(a_subspace);
 	}
 
+	for (size_t i = 0; i < subspaces.size(); i++)
+	{
+		for (size_t j = 0; j < subspaces[i].cells.size(); j++)
+		{
+			if (subspaces[i].printCellMaterial(j) == 0)
+			{
+				int ID = subspaces[i].cells[j].internalsubspace.subspace_inside;
+				if (subspaces[i].cells[j].internalsubspace.type == 1)
+				{
+					double x = subspaces[ID].x_r;
+					double y = subspaces[ID].y_r;
+					double z = subspaces[ID].z_r;
+					double x_tot = subspaces[i].x_r;
+					double y_tot = subspaces[i].y_r;
+					double z_tot = subspaces[i].z_r;
+					subspaces[i].cells[j].internalsubspace.pitch.push_back(x);
+					subspaces[i].cells[j].internalsubspace.pitch.push_back(y);
+					subspaces[i].cells[j].internalsubspace.pitch.push_back(z);
+					// amount of cells. 
+					subspaces[i].cells[j].internalsubspace.nr_x = (int) floor((x + 1e-10) / x_tot);
+					subspaces[i].cells[j].internalsubspace.nr_y = (int) floor((y + 1e-10) / y_tot);
+					subspaces[i].cells[j].internalsubspace.nr_z = (int) floor((z + 1e-10) / z_tot);
+				}
+				if (subspaces[i].cells[j].internalsubspace.type == 2)
+				{
+					
+				}
+			}
+		}
+	}
+
 	return;
 }
 
@@ -128,13 +159,14 @@ void Universe::plotSlice(double z0, int ID)
 
 	double x_add = x_r / Nx;
 	double y_add = y_r / Ny;
+	int target[2];
 
 	for (int i = 0; i < Nx; i++)
 	{
 		for (int j = 0; j < Ny; j++)
 		{
-			cell_id = subspaces[ID].findCellatpoint(point);
-			log	<< cell_id << ";";
+			CellInUniverse(point,ID,target);
+			log	<< subspaces[target[0]].printCellID(target[1]) << ";";
 
 			point[1] = point[1] + y_add;
 		}
@@ -194,7 +226,7 @@ void Universe::CalculateLineVolume(int subspacerank)
 
 	for (int i = 0; i < M; i++)
 	{
-		volpercentages[i];
+		volpercentages[i] = lineCalc(subspacerank);
 	}
 
 	double T = t.calcStop();
@@ -226,7 +258,7 @@ void Universe::CalculateLineVolume(int subspacerank)
 	for (int i = 0; i < means.size(); i++)
 	{
 		log << "Mean volume of " << subspaces[subspacerank].printCellName(i);
-		log << " is " << means[i] << " % \n";
+		log << " is " << means[i]*100 << " %, and " << means[i]*Volume << " cubics \n";
 		log << "With a STD Div of " << stdiv[i] <<"and a FOM of: " << FOM[i] <<"\n";
 	}
 	log.close(); 
@@ -264,19 +296,19 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 		if (startside == 0)
 		{
 			point[0] = subspaces[subspacerank].subspaceranges.x[0] + epsilon;
-			point[1] = dis(gen) * subspaces[subspacerank].y_r - subspaces[subspacerank].subspaceranges.y[0];
-			point[2] = dis(gen) * subspaces[subspacerank].z_r - subspaces[subspacerank].subspaceranges.z[0];
+			point[1] = ( dis(gen) * subspaces[subspacerank].y_r ) + subspaces[subspacerank].subspaceranges.y[0];
+			point[2] = ( dis(gen) * subspaces[subspacerank].z_r ) + subspaces[subspacerank].subspaceranges.z[0];
 		}
 		else if (startside == 1)
 		{
-			point[0] = dis(gen) * subspaces[subspacerank].x_r - subspaces[subspacerank].subspaceranges.x[0];
+			point[0] = (dis(gen) * subspaces[subspacerank].x_r) + subspaces[subspacerank].subspaceranges.x[0];
 			point[1] = subspaces[subspacerank].subspaceranges.y[0] + epsilon;
-			point[2] = dis(gen) * subspaces[subspacerank].z_r - subspaces[subspacerank].subspaceranges.z[0];
+			point[2] = (dis(gen) * subspaces[subspacerank].z_r ) + subspaces[subspacerank].subspaceranges.z[0];
 		}
 		else
 		{
-			point[0] = dis(gen) * subspaces[subspacerank].x_r - subspaces[subspacerank].subspaceranges.x[0];
-			point[1] = dis(gen) * subspaces[subspacerank].y_r - subspaces[subspacerank].subspaceranges.y[0];
+			point[0] = (dis(gen) * subspaces[subspacerank].x_r ) + subspaces[subspacerank].subspaceranges.x[0];
+			point[1] = (dis(gen) * subspaces[subspacerank].y_r ) + subspaces[subspacerank].subspaceranges.y[0];
 			point[2] = subspaces[subspacerank].subspaceranges.z[0] + epsilon;
 		}
 
@@ -294,15 +326,17 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 				}
 			}
 
-			std::sort(tmp_list.begin(), tmp_list.end());
-			tmp_list[0].second = subspaces[subspacerank].findCellatpoint(point);
-			lengths.push_back(tmp_list[0]);
+			
+				std::sort(tmp_list.begin(), tmp_list.end());
+				tmp_list[0].second = subspaces[subspacerank].findCellatpoint(point);
+				lengths.push_back(tmp_list[0]);
 
-			point[0] = point[0] + tmp_list[0].first * direction[0] + epsilon;
-			point[1] = point[1] + tmp_list[0].first * direction[1] + epsilon;
-			point[2] = point[2] + tmp_list[0].first * direction[2] + epsilon;
+				point[0] = point[0] + tmp_list[0].first * direction[0] + epsilon;
+				point[1] = point[1] + tmp_list[0].first * direction[1] + epsilon;
+				point[2] = point[2] + tmp_list[0].first * direction[2] + epsilon;
 
-			tmp_list.clear();
+				tmp_list.clear();
+			
 
 		} while (subspaces[subspacerank].cells[subspaces[subspacerank].boundry_index].insideCell(point, 0) == 1);
 
@@ -371,5 +405,55 @@ void Universe::Randomdirfrombound(int startside,double * dir)
 	dir[1] = dir[1] / norm;
 	dir[2] = dir[2] / norm;
 
+	return;
+}
+
+
+void Universe::CellInUniverse(double * point, int top_subspace, int * target)
+//Target should be a int [2], giving subspace and ID of location.
+{
+	int target_subspace, target_index, tmp_material;
+
+	double tmp_point[3];
+
+	tmp_point[0] = point[0];
+	tmp_point[1] = point[1];
+	tmp_point[2] = point[2];
+
+	target_subspace = top_subspace;
+	
+	do
+	{
+		target_index = subspaces[target_subspace].findCellatpoint(tmp_point);
+		tmp_material = subspaces[target_subspace].printCellMaterial(target_index);
+
+		if (tmp_material == 0)
+		{
+			//Calculate point in relation to bottom corner of cell containing subspace.
+			tmp_point[0] = tmp_point[0] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[0];
+			tmp_point[1] = tmp_point[1] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[1];
+			tmp_point[2] = tmp_point[2] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[2];
+			//
+			tmp_point[0] = tmp_point[0] - 
+				(floor(tmp_point[0] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0])
+				*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0]);
+			tmp_point[1] = tmp_point[1] -
+				(floor(tmp_point[1] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1])
+					*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1]);
+			tmp_point[2] = tmp_point[2] -
+				(floor(tmp_point[2] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2])
+					*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2]);
+			//Put in relation to bottom of target subspace. OBS! rounding errors!
+			int internal_subspace = subspaces[target_subspace].cells[target_index].internalsubspace.subspace_inside;
+			tmp_point[0] = tmp_point[0] + subspaces[internal_subspace].subspaceranges.x[0] + 1e-8;
+			tmp_point[1] = tmp_point[1] + subspaces[internal_subspace].subspaceranges.y[0] + 1e-8;
+			tmp_point[2] = tmp_point[2] + subspaces[internal_subspace].subspaceranges.z[0] + 1e-8;
+			//move point to next subspace at that index.
+			target_subspace = internal_subspace;
+		}
+	} while (tmp_material == 0);
+
+	target[0] = target_subspace;
+	target[1] = target_index;
 	return;
 }

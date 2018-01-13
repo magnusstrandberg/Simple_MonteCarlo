@@ -26,6 +26,7 @@ public:
 	int findCellatpoint(double *);
 	int printCellID(int);
 	std::string printCellName(int);
+	int printCellMaterial(int);
 };
 
 
@@ -62,16 +63,17 @@ public:
 	int insideCell(double *, bool);
 	int insideCellNRM(double *, bool);
 	double distanceCell(double * position, double * direction);
+	Latice internalsubspace;
 protected:
 	std::string cell_name;
-	int cell_id;
+	int cell_id, material;
+	bool rotated;
+	bool moved;
 private:
 	std::vector <int> members_id;
 	std::vector <bool> comp_cell_lvl;
 	std::vector <complex_surf> components;
-	bool moved;
 	std::vector <double> place;
-	bool rotated;
 	std::vector <double> angles;
 	Rotations Rota;
 

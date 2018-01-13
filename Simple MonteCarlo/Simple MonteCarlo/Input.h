@@ -19,7 +19,10 @@ struct Latice
 {
 	int type;
 	int subspace_inside;
-	int hexa_pitch; //placeholder
+	double hexa_pitch;
+	std::vector <double> pitch;
+	std::vector <double> bottom;
+	int nr_x, nr_y, nr_z;
 
 };
 
@@ -49,6 +52,7 @@ struct Cell_input
 	int subspace_rank;
 	std::string cell_name;
 	std::vector <cell_comp> cell_complements;
+	int material; //0 is latice
 	Latice latice_info;
 	bool moved = false;
 	std::vector <double> place;

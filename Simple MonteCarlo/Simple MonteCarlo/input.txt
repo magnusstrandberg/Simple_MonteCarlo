@@ -2,50 +2,52 @@
 %this is 2
 
 
-N=1;
-M = 1;
+N=100;
+M = 100;
 
 
 %Surf = para_plane;1;10;1;-10;
 %Surf = plane; 2; 10; 4,2,3; 5,1,0; 2,0,2;
 
 %type;ComplexID;Rank;height(0 is infinite);
-%parallel to; centre point (at bottom if height); radius;
-%Surf = cylinder; 3; 10; 5; 2; 1,2,3; 2;
-%Surf = sphere; 5; 10; 3; 0,0,0;
-%Surf = cubid; 4; 10; 2; 3; 4;0,0,1;
-%Surf = square_prism_inf; 1; 11; 2; 3; 3; 0,1,2;
-%Surf = Hex; 1; 3; 10; 3; 0,0,0; 1;
-%Cell =  test_cell; 6; 10; 3;5,0,60,1,55,0;
-%Subspace = 1;99;
 
-Surf = cylinder;1;1;0;3;0,0,0;1;
-Surf = cylinder;2;1;0;3;0,0,0;1.5;
-%Surf = square_prism_inf;3;1;6;6;3;0,0,0;
-Surf = cubid;3;1;6;6;6;-3,-3,-3;
+Surf = cylinder;1;1;0;3;0,0,0;0.45;
+Surf = cylinder;2;1;0;3;0,0,0;0.5;
+Surf = cubid;3;1;1;1;1;-0.5,-0.5,-0.5;
 
-Cell = Fuel;1;1; 1;1,0;0;
-Cell = Cladding;2;1; 2;1,1,2,0;0;
-Cell = Coolant;3;1; 2;2,1, 3,0;0;
-Cell = Outside;4;1; 1;3,1;0;
+Cell = Fuel;1;1; 1;1,0; 1;0;
+Cell = Cladding;2;1; 2;1,1,2,0; 2;0;
+Cell = Coolant;3;1; 2;2,1,3,0; 3;0;
+Cell = Outside;4;1; 1;3,1; 9;0;
 
-Subspace = 1;4;-3,3,-3,3,-3,3;
+Subspace = 1;4; -0.5,0.5, -0.5,0.5, -0.5,0.5;
+
+Surf = cubid;11;2;6;6;6;-3,-3,-3;
+Surf = cylinder;12;2;0;3;0,0,0;4.5;
+
+Cell = Container; 10;2; 1;11,0; 0;1;0;-3.0,-3.0,-3.0;
+Cell = void; 11;2; 2;11,1,12,0; 4;0;
+Cell = Outside; 12;2; 1;12,1; 9;0;
+
+Subspace = 2;11;-5,5,-5,5,-5,5;
+
+
 
 %Surf = cylinder;11;2;7;3;0,0,-3.5;2;
 %Surf = cylinder;12;2;7.1;3;0,0,-3.55;2.05;
 %Surf = para_plane;13;2;3;0;
 
-%Cell = Inside_bot; 11;2; 2; 1,0,3,0;0;
-%Cell = Inside_top; 12;2; 2; 1,0,3,1;0;
-%Cell = Cylinder_wall; 13;2; 2; 1,1,2,0;0;
-%Cell = Outside; 14;2; 1;2,1;0;
+%Cell = Inside_bot; 11;2; 2; 1,0,3,0;0;0;
+%Cell = Inside_top; 12;2; 2; 1,0,3,1;0;0;
+%Cell = Cylinder_wall; 13;2; 2; 1,1,2,0;0;0;
+%Cell = Outside; 14;2; 1;2,1;0;0;
 
 %Subspace = 2;4;-2.05,2.05,-2.05,2.05,-3.55,3.55;
 
 %Surf = Hex; 1; 3; 10; 3; 0,0,0; 1;
 
-%Cell = HexPrism; 1;3; 1; 1,0;0;0;
-%Cell = out; 1;3; 1; 1,1;0;0;
+%Cell = HexPrism; 1;3; 1; 1,0;0;0;0;
+%Cell = out; 1;3; 1; 1,1;0;0;0;
 
 %Subspace = 3;2;-1.1,1.1,-1.1,1.1,0,10;
 

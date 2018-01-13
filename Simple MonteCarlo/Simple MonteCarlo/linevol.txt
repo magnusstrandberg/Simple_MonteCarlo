@@ -1,11 +1,69 @@
 *************************
 The Volume calculated by lines in subspace 1
  
-Mean volume of Fuel is 0 % 
+Mean volume of Fuel is 3.45769 %, and 7.46862 cubics 
 With a STD Div of 0and a FOM of: inf
-Mean volume of Cladding is 0 % 
+Mean volume of Cladding is 5.32794 %, and 11.5084 cubics 
 With a STD Div of 0and a FOM of: inf
-Mean volume of Coolant is 0 % 
+Mean volume of Coolant is 91.2144 %, and 197.023 cubics 
 With a STD Div of 0and a FOM of: inf
-Mean volume of Outside is 0 % 
+Mean volume of Outside is 0 %, and 0 cubics 
+With a STD Div of 0and a FOM of: inf
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 4.96193 %, and 10.7178 cubics 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Cladding is 13.5167 %, and 29.196 cubics 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Coolant is 81.5214 %, and 176.086 cubics 
+With a STD Div of 0and a FOM of: inf
+Mean volume of Outside is 0 %, and 0 cubics 
+With a STD Div of 0and a FOM of: inf
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 4.29678 %, and 9.28104 cubics 
+With a STD Div of 0.0126241and a FOM of: 4236.88
+Mean volume of Cladding is 13.8665 %, and 29.9517 cubics 
+With a STD Div of 0.0423069and a FOM of: 377.244
+Mean volume of Coolant is 81.8367 %, and 176.767 cubics 
+With a STD Div of 0.0462517and a FOM of: 315.638
+Mean volume of Outside is 0 %, and 0 cubics 
+With a STD Div of 0and a FOM of: inf
+*************************
+The Volume calculated by lines in subspace 1
+ 
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 6.2436 %, and 0.062436 cubics 
+With a STD Div of 0.0238221and a FOM of: 871.486
+Mean volume of Cladding is 5.70754 %, and 0.0570754 cubics 
+With a STD Div of 0.0457264and a FOM of: 236.53
+Mean volume of Coolant is 27.6108 %, and 0.276108 cubics 
+With a STD Div of 0.0595468and a FOM of: 139.477
+Mean volume of Outside is 0 %, and 0 cubics 
+With a STD Div of 0and a FOM of: inf
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 4.81504 %, and 0.0481504 cubics 
+With a STD Div of 0.0170909and a FOM of: 1613.34
+Mean volume of Cladding is 4.36022 %, and 0.0436022 cubics 
+With a STD Div of 0.0266764and a FOM of: 662.219
+Mean volume of Coolant is 8.66858 %, and 0.0866858 cubics 
+With a STD Div of 0.0227849and a FOM of: 907.734
+Mean volume of Outside is 0 %, and 0 cubics 
+With a STD Div of 0and a FOM of: inf
+*************************
+The Volume calculated by lines in subspace 1
+ 
+Mean volume of Fuel is 40.7887 %, and 0.407887 cubics 
+With a STD Div of 0.0436953and a FOM of: 226.735
+Mean volume of Cladding is 32.8927 %, and 0.328927 cubics 
+With a STD Div of 0.0529608and a FOM of: 154.34
+Mean volume of Coolant is 26.3185 %, and 0.263185 cubics 
+With a STD Div of 0.0513245and a FOM of: 164.339
+Mean volume of Outside is 0 %, and 0 cubics 
 With a STD Div of 0and a FOM of: inf

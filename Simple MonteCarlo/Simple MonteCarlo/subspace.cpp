@@ -102,6 +102,11 @@ std::string subspace::printCellName(int order)
 	return cells[order].cell_name;
 }
 
+int subspace::printCellMaterial(int ID)
+{
+	return cells[ID].material;
+}
+
 complex_surf::complex_surf()
 {
 }
@@ -440,6 +445,12 @@ void cell::createCellfromCompSurf(Cell_input input, std::vector <complex_surf> c
 	{
 		angles = input.angles;
 		Rota.make(angles);
+	}
+
+	material = input.material;
+	if (material == 0)
+	{
+		internalsubspace = input.latice_info;
 	}
 
 	for (int i = 0; i < comp.size(); i++)

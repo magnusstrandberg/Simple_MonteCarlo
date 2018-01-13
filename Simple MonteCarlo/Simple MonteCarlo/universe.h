@@ -27,6 +27,8 @@ public:
 
 	void Randomdirfrombound(int startside, double * dir);
 
+	void CellInUniverse(double * point, int top_subspace, int * target);
+
 	std::vector <subspace> subspaces;
 private:
 	int N, M;

@@ -220,6 +220,11 @@ void Input::cellCreator(const std::string data)
 	old = split + 1;
 	split = data.find(';', old);
 
+	some_cell.material = stoi(data.substr(old, split));
+
+	old = split + 1;
+	split = data.find(';', old);
+
 	//Contains Latice (0 is no, 1 is square, 2 hexa)
 	int latice = stoi(data.substr(old, split));
 
@@ -233,13 +238,29 @@ void Input::cellCreator(const std::string data)
 
 		//subspace inside
 		some_cell.latice_info.subspace_inside = stoi(data.substr(old, split));
-
-		old = split + 1;
-		split = data.find(';', old);
-		if (latice == 2)
+		if (latice ==1)
 		{
+			old = split + 1;
+			split = data.find(';', old);
+			old_point = old;
+			for (size_t i = 0; i < 3; i++)
+			{
+				point = data.find(',', old_point);
+				some_cell.latice_info.bottom.push_back(stod(data.substr(old_point, point)));
+				old_point = point + 1;
+			}
+
+		}
+		else if (latice == 2)
+		{
+			old = split + 1;
+			split = data.find(';', old);
 			//hexa pitch
-			some_cell.latice_info.hexa_pitch = stoi(data.substr(old, split));
+			some_cell.latice_info.hexa_pitch = stod(data.substr(old, split));
+		}
+		else
+		{
+			some_cell.latice_info.hexa_pitch = -1;
 		}
 	}
 
@@ -659,7 +680,7 @@ std::vector<double> Input::generalPlanParams(double point1[], double point2[], d
 
 void Input::surfCubid(const std::string values, Surf_input cuboid )
 {
-	//type;ComplexID;Rank;xlength;ylength;zlength;centre point;
+	//type;ComplexID;Rank;xlength;ylength;zlength;bottom point;
 	double start_point[3], xlength, ylength, zlength;
 	cuboid.type = cubid;
 
