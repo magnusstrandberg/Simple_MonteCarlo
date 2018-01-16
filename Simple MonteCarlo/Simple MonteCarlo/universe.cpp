@@ -58,7 +58,6 @@ void Universe::buildSubspaces(Input data)
 				}
 				if (subspaces[i].cells[j].internalsubspace.type == 2)
 				{
-					
 				}
 			}
 		}
@@ -74,8 +73,24 @@ void Universe::calculateVolumes(int subspacerank)
 	timer t;
 	t.startTime();
 
+	int count_size=0;
+	std::vector<std::pair <int, int>> structure;
+
+	for (size_t i = 0; i < subspaces.size(); i++)
+	{
+		for (size_t j = 0; j < subspaces[i].cells.size(); j++)
+		{
+			count_size++;
+			std::pair <int, int> tmp;
+			tmp.first = i;
+			tmp.second = j;
+			structure.push_back(tmp);
+		}
+	}
+
+
 	std::vector <std::vector <int> > hits
-			(M, std::vector<int>(subspaces[subspacerank].cells.size()));
+			(M, std::vector<int>(count_size));
 
 	
 
@@ -84,13 +99,13 @@ void Universe::calculateVolumes(int subspacerank)
 		hits[i] = pointVolume(subspacerank);
 	}
 
-	std::vector<double> means(subspaces[subspacerank].cells.size());
-	std::vector<double> stdiv(subspaces[subspacerank].cells.size());
-	std::vector<double> FOM(subspaces[subspacerank].cells.size());
+	std::vector<double> means(count_size);
+	std::vector<double> stdiv(count_size);
+	std::vector<double> FOM(count_size);
 
 	double T = t.calcStop();
 
-	for (int i = 0; i < subspaces[subspacerank].cells.size(); i++)
+	for (int i = 0; i < count_size; i++)
 	{
 		std::vector <double> tmp_ratios(M);
 		for (int j = 0; j < M; j++)
@@ -111,11 +126,11 @@ void Universe::calculateVolumes(int subspacerank)
 	log << "Volumes in subspace: " << subspacerank + 1 << "\n";
 
 
-		for (int i = 0; i < means.size(); i++)
+		for (int i = 0; i < count_size; i++)
 	{	
-		log << "Component " << subspaces[subspacerank].printCellName(i)
-			<< " has a mean volume procentage of " << means[i]* totalV;
-		log << " with a std_div of: " << stdiv[i]*totalV << " ";
+		log << "Component " << subspaces[structure[i].first].printCellName(structure[i].second)
+			<< " has a mean volume procentage of " << means[i];
+		log << " with a std_div of: " << stdiv[i] << " ";
 		log << "FOM: " << FOM[i] << " \n";
 	}
 	
@@ -184,7 +199,7 @@ void Universe::plotSlice(double z0, int ID)
 //Returns a vector of points that are inside that cell in the order the cells are listed.
 std::vector<int> Universe::pointVolume(int subspaceRank)
 {
-	std::vector<int> cell_indexes(N);
+	std::vector <std::pair<int, int>> indexes(N);
 	
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -194,23 +209,48 @@ std::vector<int> Universe::pointVolume(int subspaceRank)
 	for (int i = 0; i < N; i++)
 	{
 		double point[3];
+		int target[2];
 		point[0] = (dis(gen) * subspaces[subspaceRank].x_r) + subspaces[subspaceRank].subspaceranges.x[0];
 		point[1] = (dis(gen) * subspaces[subspaceRank].y_r) + subspaces[subspaceRank].subspaceranges.y[0];
 		point[2] = (dis(gen) * subspaces[subspaceRank].z_r) + subspaces[subspaceRank].subspaceranges.z[0];
 
-		cell_indexes[i] = subspaces[subspaceRank].findCellatpoint(point);
-
+		int tmp_int[2];
+		CellInUniverse(point, subspaceRank, tmp_int);
+		std::pair <int, int> tmp;
+		tmp.first = tmp_int[0];
+		tmp.second = tmp_int[1];
+		indexes[i] = tmp;
 	}
-	
-	std::vector<int> hit(subspaces[subspaceRank].cells.size());
-
-	#pragma omp parallel for schedule(dynamic,1)
-	for (int i = 0; i < subspaces[subspaceRank].cells.size(); i++)
+	int cell_count = 0;
+	for (size_t i = 0; i < subspaces.size(); i++)
 	{
-		hit[i] = std::count(cell_indexes.begin(), cell_indexes.end(), i);
+		cell_count += subspaces[i].cells.size();
+	}
+	std::vector<std::pair<int,int>> hit_index(cell_count);
+	std::vector<int> hits(cell_count,0);
+	int tmp_index = 0;
+	for (size_t i = 0; i < subspaces.size(); i++)
+	{
+		for (size_t j = 0; j < subspaces[i].cells.size(); j++)
+		{
+			hit_index[tmp_index].first = i;
+			hit_index[tmp_index].second = j;
+			tmp_index++;
+		}
+	}
+
+	for (int i = 0; i < hits.size(); i++)
+	{
+		for (size_t j = 0; j < indexes.size(); j++)
+		{
+			if (hit_index[i].first == indexes[j].first && hit_index[i].second == indexes[j].second)
+			{
+				hits[i]++;
+			}
+		}
 	}
 	
-	return hit;
+	return hits;
 }
 
 void Universe::CalculateLineVolume(int subspacerank)
@@ -429,27 +469,100 @@ void Universe::CellInUniverse(double * point, int top_subspace, int * target)
 
 		if (tmp_material == 0)
 		{
-			//Calculate point in relation to bottom corner of cell containing subspace.
-			tmp_point[0] = tmp_point[0] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[0];
-			tmp_point[1] = tmp_point[1] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[1];
-			tmp_point[2] = tmp_point[2] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[2];
-			//
-			tmp_point[0] = tmp_point[0] - 
-				(floor(tmp_point[0] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0])
-				*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0]);
-			tmp_point[1] = tmp_point[1] -
-				(floor(tmp_point[1] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1])
-					*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1]);
-			tmp_point[2] = tmp_point[2] -
-				(floor(tmp_point[2] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2])
-					*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2]);
-			//Put in relation to bottom of target subspace. OBS! rounding errors!
-			int internal_subspace = subspaces[target_subspace].cells[target_index].internalsubspace.subspace_inside;
-			tmp_point[0] = tmp_point[0] + subspaces[internal_subspace].subspaceranges.x[0] + 1e-8;
-			tmp_point[1] = tmp_point[1] + subspaces[internal_subspace].subspaceranges.y[0] + 1e-8;
-			tmp_point[2] = tmp_point[2] + subspaces[internal_subspace].subspaceranges.z[0] + 1e-8;
-			//move point to next subspace at that index.
-			target_subspace = internal_subspace;
+			if (subspaces[target_subspace].cells[target_index].internalsubspace.type == 1)
+			{
+				//Calculate point in relation to bottom corner of cell containing subspace.
+				tmp_point[0] = tmp_point[0] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[0];
+				tmp_point[1] = tmp_point[1] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[1];
+				tmp_point[2] = tmp_point[2] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[2];
+				//
+				tmp_point[0] = tmp_point[0] -
+					(floor(tmp_point[0] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0])
+						*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[0]);
+				tmp_point[1] = tmp_point[1] -
+					(floor(tmp_point[1] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1])
+						*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[1]);
+				tmp_point[2] = tmp_point[2] -
+					(floor(tmp_point[2] / subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2])
+						*subspaces[target_subspace].cells[target_index].internalsubspace.pitch[2]);
+				//Put in relation to bottom of target subspace. OBS! rounding errors!
+				int internal_subspace = subspaces[target_subspace].cells[target_index].internalsubspace.subspace_inside;
+				tmp_point[0] = tmp_point[0] + subspaces[internal_subspace].subspaceranges.x[0] + 1e-8;
+				tmp_point[1] = tmp_point[1] + subspaces[internal_subspace].subspaceranges.y[0] + 1e-8;
+				tmp_point[2] = tmp_point[2] + subspaces[internal_subspace].subspaceranges.z[0] + 1e-8;
+				//move point to next subspace at that index.
+				target_subspace = internal_subspace;
+			}
+			else if (subspaces[target_subspace].cells[target_index].internalsubspace.type == 2)
+			{
+				//Calculate point in relation to the middle of the hexa lattice
+				tmp_point[0] = tmp_point[0] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[0];
+				tmp_point[1] = tmp_point[1] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[1];
+				tmp_point[2] = tmp_point[2] - subspaces[target_subspace].cells[target_index].internalsubspace.bottom[2];
+				// find possible index
+				double hexa = subspaces[target_subspace].cells[target_index].internalsubspace.hexa_pitch;
+				double alpha = -(tmp_point[0] / sqrt(3)) + tmp_point[1];
+				int prime_x_index = ceil(point[0] / (hexa * sqrt(3) / 2));
+				int prime_a_index = ceil(alpha / hexa);
+				//Calculate shortest centre distance
+				std::vector <double> distances(4);
+				int k = 0;
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						double centre_point[3];
+
+						centre_point[0] = 1.5 * hexa * (prime_x_index + i);
+						centre_point[1] = hexa * 1.5 * (prime_a_index + j);
+						centre_point[2] = tmp_point[2];
+
+						distances[k] = sqrt(pow(tmp_point[0] - centre_point[0], 2)
+							+ pow(tmp_point[1] - centre_point[1], 2)
+							+ pow(tmp_point[2] - centre_point[2], 2));
+						k++;
+					}
+
+				}
+				
+				int shortest = 0;
+				//find shortest
+				for (size_t i = 1; i < 4; i++)
+				{
+					if (distances[i] < distances[shortest])
+					{
+						shortest = i;
+					}
+				}
+
+				int x_index = prime_x_index;
+				int a_index = prime_a_index;
+
+				if (shortest == 1)
+				{
+					a_index++;
+				}
+				else if (shortest == 2)
+				{
+					x_index++;
+				}
+				else if (shortest == 3)
+				{
+					a_index++;
+					x_index++;
+				}
+
+				double centre_point[3];
+
+				centre_point[0] = 1.5 * hexa * x_index;
+				centre_point[1] = hexa * 1.5 * a_index;
+				
+				tmp_point[0] = tmp_point[0] - centre_point[0];
+				tmp_point[1] = tmp_point[1] - centre_point[0];
+
+
+				target_subspace = subspaces[target_subspace].cells[target_index].internalsubspace.subspace_inside;
+			}
 		}
 	} while (tmp_material == 0);
 

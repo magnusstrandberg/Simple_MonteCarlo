@@ -19,7 +19,7 @@ public:
 	void buildSubspaces(Input);
 	void calculateVolumes(int);
 	void plotSlice(double, int);
-	std::vector <int> pointVolume(int);
+	std::vector<int> pointVolume(int);
 
 	void CalculateLineVolume(int subspacerank);
 

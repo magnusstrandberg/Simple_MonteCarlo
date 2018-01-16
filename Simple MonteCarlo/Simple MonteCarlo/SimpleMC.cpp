@@ -38,6 +38,8 @@ int main()
 	
 	//testRotations();
 	
+	//uni.calculateVolumes(1);
+
 	/*
 	double direction[3];
 	direction[0] = 1;
@@ -45,12 +47,14 @@ int main()
 	direction[2] = 0; 
 	*/
 
-	//double point[] = { 0, 0, 0.0 };
+	//double point[] = { 1, 0, 0.0 };
 	//double test = uni.subspaces[0].complex_surfs[1].distanceComplexSurface(point, direction);
 	//double tmp = uni.subspaces[0].y_r;
 	//std:vector <double> vittu = uni.lineCalc(0);
 	//int target[2];
 	//uni.CellInUniverse(point, 1, target);
+	
+	//int test;
 	//uni.CalculateLineVolume(0);
 	uni.plotSlice(0,1);
 	return 0;

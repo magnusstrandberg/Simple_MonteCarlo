@@ -94,7 +94,15 @@ int subspace::findCellatpoint(double * point)
 
 int subspace::printCellID(int order) 
 {
-	return cells[order].cell_id;
+	if (order >= 0)
+	{
+		return cells[order].cell_id;
+	}
+	else
+	{
+		return -1;
+	}
+
 }
 
 std::string subspace::printCellName(int order)
@@ -104,7 +112,14 @@ std::string subspace::printCellName(int order)
 
 int subspace::printCellMaterial(int ID)
 {
-	return cells[ID].material;
+	if (ID >= 0)
+	{
+		return cells[ID].material;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 complex_surf::complex_surf()

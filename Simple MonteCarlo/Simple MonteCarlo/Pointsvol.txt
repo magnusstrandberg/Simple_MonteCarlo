@@ -65,3 +65,39 @@ Component Fuel has a mean volume procentage of 0.62712 with a std_div of: 0.1471
 Component Cladding has a mean volume procentage of 0.2178 with a std_div of: 0.0919763 FOM: 65581.3 
 Component Coolant has a mean volume procentage of 35.1551 with a std_div of: 0.164063 FOM: 20611.5 
 Component Outside has a mean volume procentage of 0 with a std_div of: 0 FOM: inf 
+*************************
+Volumes in subspace: 2
+Component Fuel has a mean volume procentage of 359.6 with a std_div of: 49.1919 FOM: 1796.74 
+Component Cladding has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+Component Coolant has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+Component Outside has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+Component Container has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+Component void has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+Component Outside has a mean volume procentage of 134 with a std_div of: 34.4093 FOM: 3672.15 
+*************************
+Volumes in subspace: 2
+Component Fuel has a mean volume procentage of 0.3654 with a std_div of: 0.045242 FOM: 2200.71 
+Component Cladding has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+Component Coolant has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+Component Outside has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+Component Container has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+Component void has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+Component Outside has a mean volume procentage of 0.1421 with a std_div of: 0.0355048 FOM: 3573.33 
+*************************
+Volumes in subspace: 2
+Component Fuel has a mean volume procentage of 0.1344 with a std_div of: 0.0322899 FOM: 47.031 
+Component Cladding has a mean volume procentage of 0.0355 with a std_div of: 0.0198179 FOM: 124.854 
+Component Coolant has a mean volume procentage of 0.0484 with a std_div of: 0.0212 FOM: 109.106 
+Component Outside has a mean volume procentage of 0 with a std_div of: 0 FOM: inf 
+Component Container has a mean volume procentage of 0 with a std_div of: 0 FOM: inf 
+Component void has a mean volume procentage of 0.4268 with a std_div of: 0.050929 FOM: 18.9055 
+Component Outside has a mean volume procentage of 0.3549 with a std_div of: 0.0450665 FOM: 24.1441 
+*************************
+Volumes in subspace: 2
+Component Fuel has a mean volume procentage of 0.1423 with a std_div of: 0.0335814 FOM: 4346.83 
+Component Cladding has a mean volume procentage of 0.0309 with a std_div of: 0.0172102 FOM: 16550.1 
+Component Coolant has a mean volume procentage of 0.0472 with a std_div of: 0.0192914 FOM: 13171.6 
+Component Outside has a mean volume procentage of 0 with a std_div of: 0 FOM: inf 
+Component Container has a mean volume procentage of 0 with a std_div of: 0 FOM: inf 
+Component void has a mean volume procentage of 0.414 with a std_div of: 0.0475395 FOM: 2169.01 
+Component Outside has a mean volume procentage of 0.3656 with a std_div of: 0.0487098 FOM: 2066.04 
