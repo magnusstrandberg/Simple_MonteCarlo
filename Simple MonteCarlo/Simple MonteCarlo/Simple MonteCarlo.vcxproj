@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="coin.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="NData.cpp" />
     <ClCompile Include="Rotations.cpp" />
     <ClCompile Include="SimpleMC.cpp" />
     <ClCompile Include="stat.cpp" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClInclude Include="coin.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="NData.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Rotations.h" />
     <ClInclude Include="stat.h" />

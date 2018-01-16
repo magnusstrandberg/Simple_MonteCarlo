@@ -10,6 +10,7 @@
 #include "universe.h"
 #include "Rotations.h"
 #include <vector>
+#include "NData.h"
 
 using namespace std;
 void fileReader(string);
@@ -25,12 +26,16 @@ int main()
 	Input input_data;
 	input_data.fileReader(filelocation);
 	
+	string log = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\listofmaterial.txt";
+	NData Nucleardata;
+	Nucleardata.readlist(log);
+
 	//testInputCompSurf(input_data);
 	//testInputCell(input_data); 
 	//testInputSubspace(input_data);
 	
-	Universe uni;
-	uni.buildSubspaces(input_data);
+	//Universe uni;
+	//uni.buildSubspaces(input_data);
 	//uni.calculateVolumes(0);
 	//uni.calculateVolumes(1);
 	//uni.calculateVolumes(2);
@@ -56,7 +61,7 @@ int main()
 	
 	//int test;
 	//uni.CalculateLineVolume(0);
-	uni.plotSlice(0,1);
+	//uni.plotSlice(0,1);
 	return 0;
 }
 

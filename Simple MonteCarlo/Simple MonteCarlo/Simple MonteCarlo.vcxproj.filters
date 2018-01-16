@@ -42,6 +42,9 @@
     <ClCompile Include="Rotations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rotations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
