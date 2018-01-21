@@ -10,6 +10,7 @@
 #include "universe.h"
 #include "Rotations.h"
 #include <vector>
+#include <map>
 #include "NData.h"
 
 using namespace std;
@@ -29,39 +30,13 @@ int main()
 	string log = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\listofmaterial.txt";
 	NData Nucleardata;
 	Nucleardata.readlist(log);
-
-	//testInputCompSurf(input_data);
-	//testInputCell(input_data); 
-	//testInputSubspace(input_data);
+	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits.txt";
+	Nucleardata.BuildComps(comps);
+	Nucleardata.PopulateBank(1, 1e-5);
+	string name = "U-235";
+	int index = Nucleardata.GetmaterialIndex(name);
+	Nucleardata.FissionReaction(0, index);
 	
-	//Universe uni;
-	//uni.buildSubspaces(input_data);
-	//uni.calculateVolumes(0);
-	//uni.calculateVolumes(1);
-	//uni.calculateVolumes(2);
-	//uni.plotSlice(0.0, 0);
-	
-	//testRotations();
-	
-	//uni.calculateVolumes(1);
-
-	/*
-	double direction[3];
-	direction[0] = 1;
-	direction[1] = 0;
-	direction[2] = 0; 
-	*/
-
-	//double point[] = { 1, 0, 0.0 };
-	//double test = uni.subspaces[0].complex_surfs[1].distanceComplexSurface(point, direction);
-	//double tmp = uni.subspaces[0].y_r;
-	//std:vector <double> vittu = uni.lineCalc(0);
-	//int target[2];
-	//uni.CellInUniverse(point, 1, target);
-	
-	//int test;
-	//uni.CalculateLineVolume(0);
-	//uni.plotSlice(0,1);
 	return 0;
 }
 
@@ -168,4 +143,35 @@ void testInputSubspace(Input input_data)
 	return;
 }
 
+//testInputCompSurf(input_data);
+//testInputCell(input_data); 
+//testInputSubspace(input_data);
 
+//Universe uni;
+//uni.buildSubspaces(input_data);
+//uni.calculateVolumes(0);
+//uni.calculateVolumes(1);
+//uni.calculateVolumes(2);
+//uni.plotSlice(0.0, 0);
+
+//testRotations();
+
+//uni.calculateVolumes(1);
+
+/*
+double direction[3];
+direction[0] = 1;
+direction[1] = 0;
+direction[2] = 0;
+*/
+
+//double point[] = { 1, 0, 0.0 };
+//double test = uni.subspaces[0].complex_surfs[1].distanceComplexSurface(point, direction);
+//double tmp = uni.subspaces[0].y_r;
+//std:vector <double> vittu = uni.lineCalc(0);
+//int target[2];
+//uni.CellInUniverse(point, 1, target);
+
+//int test;
+//uni.CalculateLineVolume(0);
+//uni.plotSlice(0,1);
