@@ -1,63 +1,39 @@
-%This is a comment
-%this is 2
-
-
-N=100;
+N=1000;
 M = 100;
 
+%Surf = cylinder; 1;0;70; 3;0,0,-35;20;
+%Surf = cylinder; 2;0;71; 3;0,0,-35.5;20.55;
+%Surf = para_plane; 3;0;3;0;
 
-%Surf = para_plane;1;10;1;-10;
-%Surf = plane; 2; 10; 4,2,3; 5,1,0; 2,0,2;
+%Cell = Water; 1;0; 2;1,0,3,0; 1;0;0;
+%Cell = Air; 2;0; 2; 1,0,3,1; 1;0;0;
+%Cell = Iron; 3;0; 2; 1,1,2,0; 1;0;0;
+%Cell = Outside; 4;0; 1;2,1; 2;0;0;
 
-%type;ComplexID;Rank;height(0 is infinite);
-
-%Surf = cylinder;1;1;0;3;0,0,0;0.45;
-%Surf = cylinder;2;1;0;3;0,0,0;0.5;
-%Surf = cubid;3;1;1;1;1;-0.5,-0.5,-0.5;
-
-%Cell = Fuel;1;1; 1;1,0; 1;0;
-%Cell = Cladding;2;1; 2;1,1,2,0; 2;0;
-%Cell = Coolant;3;1; 2;2,1,3,0; 3;0;
-%Cell = Outside;4;1; 1;3,1; 9;0;
-
-%Subspace = 1;4; -0.5,0.5, -0.5,0.5, -0.5,0.5;
-
-Surf = cylinder; 1;1;0; 3;0,0,0;0.45;
-Surf = Hex; 2;1; 0;3; 0,0,0; 1;
-
-Cell = Fuel;1;1; 1;1,0; 1;0;
-Cell = HexPrism; 2;1; 2; 1,1,2,0; 2;0;0;
-Cell = out; 3;1; 1; 2,1; 5;0;0;
-
-Subspace = 1;2;-1.1,1.1,-1.1,1.1;
+%Subspace = 0;4;-20,20,-20,20,-35.5,35.5;
 
 
-Surf = cylinder;12;2;0;3;0,0,0;4.7;
+Surf = cylinder; 1;1;0; 3;0,0,0;0.412;
+Surf = cylinder; 2;1;0; 3;0,0,0;0.475;
+Surf = square_prism_inf; 3;1; 1.33;1.33;3;0,0,0;
+Surf = para_plane; 4;1;3;0;
+Surf = para_plane; 5;1;3;1;
 
-Cell = void; 11;2; 1;12,0; 0;2;0;1; 0.0, 0.0, 0.0;
-Cell = Outside; 12;2; 1;12,1; 9;0;
+Cell = Fuel; 1;1;     3;1,0 ,4,1, 5,0;      1;0;0;
+Cell = Cladding; 1;1; 4;2,0, 1,1, 4,1, 5,0; 1;0;0;
+Cell = Coolant; 3;1;  4;3,0, 2,1, 4,1, 5,0; 1;0;0;
+Cell = Outside; 4;1;  3;3,1, 4,0, 5,1;      2;0;0;
 
-Subspace = 2;11;-5,5,-5,5,-5,5;
+Subspace = 1;4;-0.665,0.665,-0.665,0.665,0,1;
 
+%Surf = cylinder; 1;2;7; 3;0,0,-3.5;2;
+%Surf = cylinder; 2;2;7.1; 3;0,0,-3.55;2.05;
+%Surf = para_plane; 3;2;3;0;
 
-
-%Surf = cylinder;11;2;7;3;0,0,-3.5;2;
-%Surf = cylinder;12;2;7.1;3;0,0,-3.55;2.05;
-%Surf = para_plane;13;2;3;0;
-
-%Cell = Inside_bot; 11;2; 2; 1,0,3,0;0;0;
-%Cell = Inside_top; 12;2; 2; 1,0,3,1;0;0;
-%Cell = Cylinder_wall; 13;2; 2; 1,1,2,0;0;0;
-%Cell = Outside; 14;2; 1;2,1;0;0;
+%Cell = Water; 1;2; 2;1,0,3,0; 1;0;0;
+%Cell = Air; 2;2; 2; 1,0,3,1; 1;0;0;
+%Cell = Iron; 3;2; 2; 1,1,2,0; 1;0;0;
+%Cell = Outside; 4;2; 1;2,1; 2;0;0;
 
 %Subspace = 2;4;-2.05,2.05,-2.05,2.05,-3.55,3.55;
 
-%Surf = Hex; 1; 3; 10; 3; 0,0,0; 1;
-
-%Cell = HexPrism; 1;3; 1; 1,0;0;0;0;
-%Cell = out; 1;3; 1; 1,1;0;0;0;
-
-%Subspace = 3;2;-1.1,1.1,-1.1,1.1,0,10;
-
-%Transform = 1;2; 1;1;1;0; 1;0.58;0;0;
-%Transform = 2;2; 1;1;1;0; 1;0.58;0;0;

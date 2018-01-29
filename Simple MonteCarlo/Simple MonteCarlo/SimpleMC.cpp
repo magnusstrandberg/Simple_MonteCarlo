@@ -26,16 +26,22 @@ int main()
 	string filelocation = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\input.txt";
 	Input input_data;
 	input_data.fileReader(filelocation);
-	
+	Universe uni;
+	uni.buildSubspaces(input_data);
+
+	uni.calculateVolumes(0);
+	//uni.calculateVolumes(2);
+	uni.CalculateLineVolume(0);
+	//uni.CalculateLineVolume(2);
+	/*
 	string log = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\listofmaterial.txt";
 	NData Nucleardata;
 	Nucleardata.readlist(log);
 	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits.txt";
 	Nucleardata.BuildComps(comps);
-	Nucleardata.PopulateBank(1, 1e-5);
-	string name = "U-235";
-	int index = Nucleardata.GetmaterialIndex(name);
-	Nucleardata.FissionReaction(0, index);
+	Nucleardata.AddGeom(uni,0);
+	Nucleardata.ExternalSource();
+	*/
 	
 	return 0;
 }

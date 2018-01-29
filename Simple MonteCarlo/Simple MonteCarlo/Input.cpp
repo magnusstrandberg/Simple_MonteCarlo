@@ -899,7 +899,7 @@ void Input::surfSquarePrismInf(const std::string values, Surf_input prism)
 		prism.complement.push_back(1);
 		prism.surf_ids.push_back(3);
 		b2components[7] = 1;
-		b2components[9] = (-1 * (centre_point[2] + (b / 2)));
+		b2components[9] = (-1 * (centre_point[1] + (b / 2)));
 		prism.Surfparams.push_back(b2components);
 		prism.complement.push_back(0);
 		prism.surf_ids.push_back(4);

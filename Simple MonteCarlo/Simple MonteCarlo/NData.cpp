@@ -5,6 +5,7 @@
 #include <map>
 #include <cmath>
 #include <random>
+#include "stat.h"
 
 
 NData::NData()
@@ -184,6 +185,18 @@ void NData::BuildComps(std::string filename)
 
 
 	return;
+}
+
+void NData::AddGeom(Universe Geo, int top_index) 
+{
+	Geometry = Geo;
+	top_uni = top_index;
+	return;
+}
+
+void NData::CalcNuclearDensities()
+{
+	
 }
 
 double NData::EtoCrossUnknown(std::string Symbol, int MTn, double E)
@@ -560,6 +573,7 @@ void NData::ElasticReaction(int Neutron_index, int material_index)
 	double E_newJ = 0.5 * 1.660e-27*pow(Vn_prime,2);
 	double E_new = E_newJ / 1.602e-19;
 	Bank[Neutron_index].E.push_back(E_new);
+	Bank[Neutron_index].speed = Vn_prime;
 	Bank[Neutron_index].Dir[0] = DirN[0];
 	Bank[Neutron_index].Dir[1] = DirN[1];
 	Bank[Neutron_index].Dir[2] = DirN[2];
@@ -595,7 +609,7 @@ void NData::InElasticReactions(int Neutron_index, int material_index, double Q)
 	}
 
 	//velocity lab
-	double Vn = sqrt((2 * E * 1.602e-19) / (1.660e-27));
+	double Vn = Bank[Neutron_index].speed;
 	//Vector velocity lab
 	double Vvn[3];
 	Vvn[0] = Vn*Bank[Neutron_index].Dir[0];
@@ -639,6 +653,7 @@ void NData::InElasticReactions(int Neutron_index, int material_index, double Q)
 	double E_newJ = 0.5 * 1.660e-27*pow(Vn_prime, 2);
 	double E_new = E_newJ / 1.602e-19;
 	Bank[Neutron_index].E.push_back(E_new);
+	Bank[Neutron_index].speed = Vn_prime;
 	Bank[Neutron_index].Dir[0] = DirN[0];
 	Bank[Neutron_index].Dir[1] = DirN[1];
 	Bank[Neutron_index].Dir[2] = DirN[2];
@@ -649,6 +664,7 @@ void NData::InElasticReactions(int Neutron_index, int material_index, double Q)
 void NData::FissionReaction(int Neutron_index, int material_index)
 {
 	Bank[Neutron_index].died = true;
+	Bank[Neutron_index].cause_of_death = 2;
 
 	double E = Bank[Neutron_index].E.back();
 
@@ -682,9 +698,15 @@ void NData::FissionReaction(int Neutron_index, int material_index)
 	{
 		Neutron newN;
 		newN.E.push_back(SampleMaxwell(1.2895));
+		newN.speed = sqrt((2 * newN.E.back() * 1.602e-19) / (1.660e-27));
+		newN.time = Bank[Neutron_index].time;
+		newN.generation = Bank[Neutron_index].generation + 1;
 		double dir[] = { 0,0,0 };
 		IsotropicDirection(dir);
-		Bank.push_back(newN);
+		newN.Pos[0] = Bank[Neutron_index].Pos[0];
+		newN.Pos[1] = Bank[Neutron_index].Pos[1];
+		newN.Pos[2] = Bank[Neutron_index].Pos[2];
+		Bank[Neutron_index].offspring.push_back(newN);
 	}
 
 	return;
@@ -694,6 +716,7 @@ void NData::FissionReaction(int Neutron_index, int material_index)
 void NData::CaptureReaction(int Neutron_index)
 {
 	Bank[Neutron_index].died = true;
+	Bank[Neutron_index].cause_of_death = 1;
 	return;
 }
 
@@ -717,6 +740,15 @@ double NData::SampleMaxwell(double T_ev)
 	Et = -T_ev * (pow(shi1,2)*log(shi3) / R + log(shi4));
 
 	return Et;
+}
+
+double NData::SampleLength(double crosstot)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+
+	return -1 * log(dis(gen)) / crosstot;
 }
 
 void NData::FindReaction(int Material_index, int neutron_index)
@@ -793,8 +825,17 @@ void NData::FindReaction(int Material_index, int neutron_index)
 void NData::FindNucleus(int Mix_nr, int neutron_index)
 {
 
-	double E = Bank[neutron_index].E.back();
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+	//dis(gen)
 
+	double E = Bank[neutron_index].E.back();
+	if (E < 9.9E-12 )
+	{
+		Bank[neutron_index].died = true;
+		return;
+	}
 	//Calculate total crosssection of composition.
 	double total_cross=0;
 	std::vector <double> Cross_N;
@@ -804,6 +845,13 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 		total_cross += tmp;
 		Cross_N.push_back(tmp);
 	}
+	
+
+	double track_length = SampleLength(total_cross);
+	//Here needs to be check for surface changes...
+	Bank[neutron_index].path_length += track_length;
+	double V = sqrt((2 * E * 1.602e-19) / (1.660e-27));
+	Bank[neutron_index].time += track_length/ V;
 
 	//Calculate Rates
 	std::vector<double> Rates;
@@ -815,10 +863,7 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 		Rates.push_back(tmp+Rates.back());
 	}
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(0, 1);
-	//dis(gen)
+
 
 	double choosyboi = dis(gen);
 
@@ -834,12 +879,96 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 
 }
 
+void NData::FindNucleusGeometry(int neutron_index)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+	//dis(gen)
+
+	double E = Bank[neutron_index].E.back();
+	if (E < 9.9E-12)
+	{
+		Bank[neutron_index].died = true;
+		return;
+	}
+	//Calculate total crosssection of composition.
+	double total_cross = 0;
+
+	Geometry.CellInUniverse(Bank[neutron_index].Pos, top_uni, Bank[neutron_index].target);
+	std::string material_tmp= Geometry.subspaces[Bank[neutron_index].target[0]].printCellName(Bank[neutron_index].target[0]);
+	
+	//Escaped neutrons are dead
+	if (material_tmp == "Outside")
+	{
+		Bank[neutron_index].died = true;
+		Bank[neutron_index].cause_of_death = 0;
+		return;
+	}
+
+	int index = GetMixIndex(material_tmp);
+
+	std::vector <double> Cross_N;
+	for (int i = 0; i < mixes[index].components.size(); i++)
+	{
+		double tmp = mixes[index].components[i].rate * TotCross(mixes[index].components[i].Material_index, E);
+		total_cross += tmp;
+		Cross_N.push_back(tmp);
+	}
+
+	double track_length = SampleLength(total_cross);
+	double track_length_to_border = Geometry.LineLengthUniverse(Bank[neutron_index].Pos, Bank[neutron_index].Dir, top_uni);
+	double V = sqrt((2 * E * 1.602e-19) / (1.660e-27));
+	if (track_length >= track_length_to_border )
+	{
+		double epsilon = 1e-8;
+		Bank[neutron_index].path_length += (track_length_to_border + epsilon);
+		Bank[neutron_index].time += track_length_to_border / V;
+		MoveNeutron(neutron_index, track_length_to_border);
+		return;
+	}
+	
+	Bank[neutron_index].path_length += track_length;
+	Bank[neutron_index].time += track_length / V;
+	MoveNeutron(neutron_index, track_length);
+
+	std::vector<double> Rates;
+	Rates.push_back(0.0);
+	for (int i = 0; i < Cross_N.size(); i++)
+	{
+		double tmp;
+		tmp = Cross_N[i] / total_cross;
+		Rates.push_back(tmp + Rates.back());
+	}
+
+
+
+	double choosyboi = dis(gen);
+
+	for (int i = 1; i <= Rates.size(); i++)
+	{
+		if (choosyboi < Rates[i])
+		{
+			FindReaction(mixes[index].components[i - 1].Material_index, neutron_index);
+			return;
+		}
+	}
+	
+
+}
+
 void NData::PopulateBank(int Amount, double startingE)
 {
 	Neutron tmp;
 	tmp.E.push_back(startingE);
 	double dir[] = { 0,0,0 };
-
+	int tmp_pos[] = { 0,0,0 };
+	tmp.Pos[0] = tmp_pos[0];
+	tmp.Pos[1] = tmp_pos[1];
+	tmp.Pos[2] = tmp_pos[2];
+	tmp.speed = sqrt((2 * startingE * 1.602e-19) / (1.660e-27));
+	tmp.time = 0.0;
+	tmp.generation = 0;
 
 	for (int i = 0; i < Amount; i++)
 	{
@@ -869,32 +998,310 @@ void NData::IsotropicDirection(double * dir)
 	return;
 }
 
-void NData::Teller(int Neutron_index, int Mix_index)
+
+void NData::MoveNeutron(int neutron_index, double length)
+{
+	Bank[neutron_index].Pos[0] = Bank[neutron_index].Pos[0] + (length * Bank[neutron_index].Dir[0]);
+	Bank[neutron_index].Pos[1] = Bank[neutron_index].Pos[1] + (length * Bank[neutron_index].Dir[1]);
+	Bank[neutron_index].Pos[2] = Bank[neutron_index].Pos[2] + (length * Bank[neutron_index].Dir[2]);
+	
+	return;
+}
+
+void NData::Teller()
+{
+	std::vector <Neutron> tmp_bank;
+
+	for (int i = 0; i < Bank.size(); i++)
+	{
+		if (Bank[i].children != 0)
+		{
+				tmp_bank.insert(tmp_bank.end(), Bank[i].offspring.begin(), Bank[i].offspring.end());
+		}
+	}
+
+	Graveyard.insert(Graveyard.end(), Bank.begin(), Bank.end());
+
+	EmptyBank();
+
+	Bank = tmp_bank;
+
+	return;
+}
+
+void NData::EmptyBank()
+{
+	Bank.erase(Bank.begin(), Bank.end());
+}
+
+void NData::SlowdownPlot(int N, int index_comp) 
 {
 
-	int j = 0;
-	while (j <= 10000)
+	PopulateBank(N, 14);
+	int material_index = mixes[index_comp].components[0].Material_index;
+
+	#pragma omp parallel for schedule(dynamic,1)
+	for (int i = 0; i < Bank.size(); i++)
 	{
-		FindNucleus(Mix_index, Neutron_index);
-		j++;
-		if (Bank[Neutron_index].died != false)
+		for (int j = 0; j < 200; j++)
 		{
-			
-			break;
+			ElasticReaction(i, material_index);
 		}
-		if (j == 1000)
+	}
+
+	std::vector <double> means;
+	std::vector <double> StdDiv;
+
+	for (int i = 0; i < 200; i++)
+	{
+		std::vector <double> Energies;
+		for (int j = 0; j < Bank.size(); j++)
 		{
-			break;
+			Energies.push_back(Bank[j].E[i]);
 		}
 
+		means.push_back(getMean(Energies));
+		StdDiv.push_back(getStddiv(Energies,means.back()));
+	}
+
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "_slowdown" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	log << materials[index_comp].Symbol + "\n";
+	log << "mean;StdDiv \n";
+	log << "****************************************\n";
+
+	for (size_t i = 0; i < means.size(); i++)
+	{
+		log << means[i] << ";";
+		log << StdDiv[i];
+		log << "\n";
+	}
+
+
+	EmptyBank();
+	return;
+}
+
+void NData::SlowdownPlotInelastic(int N, int index_comp)
+{
+
+	PopulateBank(N, 14);
+	
+
+#pragma omp parallel for schedule(dynamic,1)
+	for (int i = 0; i < Bank.size(); i++)
+	{
+		for (int j = 0; j < 200; j++)
+		{
+			if (!Bank[i].died)
+			{
+				FindNucleus(index_comp, i);
+			}
+		}
+	}
+
+	std::vector <double> means;
+	std::vector <double> StdDiv;
+
+	for (int i = 0; i < 50; i++)
+	{
+		std::vector <double> Energies;
+		for (int j = 0; j < Bank.size(); j++)
+		{
+			if (i < Bank[j].E.size())
+			{
+				Energies.push_back(Bank[j].E[i]);
+			}
+		}
+
+		means.push_back(getMean(Energies));
+		StdDiv.push_back(getStddiv(Energies, means.back()));
+	}
+
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "_slowdown_inelastic" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	log << materials[index_comp].Symbol + "\n";
+	log << "mean;StdDiv \n";
+	log << "****************************************\n";
+
+	for (size_t i = 0; i < means.size(); i++)
+	{
+		log << means[i] << ";";
+		log << StdDiv[i];
+		log << "\n";
+	}
+
+
+	EmptyBank();
+	return;
+}
+
+void NData::Multiplication(int N, int index_comp)
+{
+
+
+	PopulateBank(N, 1);
+
+#pragma omp parallel for schedule(dynamic,1)
+	for (int i = 0; i < N; i++)
+	{
+		int Guard = 0;
+		while (!Bank[i].died && Guard < 1000)
+		{
+			FindNucleus(index_comp, i);
+			Guard++;
+		}
+	}
+
+	std::vector <double> children;
+
+	for (int i = 0; i < N; i++)
+	{
+		children.push_back(Bank[i].children);
+	}
+
+	double mean = getMean(children);
+	double StdDiv = getStddiv(children, mean);
+
+	Teller();
+
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "_test" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	log << materials[index_comp].Symbol + "\n";
+	log << "mean;StdDiv \n";
+	log << mean << ";" << StdDiv;
+	
+	return;
+}
+
+void NData::TestEnrichment(int N, int index_comp)
+//Uranium must be first in Composit and must be so that 235 is first
+{
+	std::vector <double> old;
+	for (size_t i = 0; i < 2; i++)
+	{
+		old.push_back(mixes[index_comp].components[i].rate);
 	}
 	
-	if (Bank[Neutron_index].died)
+	std::vector <double> means;
+	std::vector <double> StdDiv;
+	std::vector <double> Enrichment;
+
+	while (mixes[index_comp].components[0].rate/mixes[index_comp].components[1].rate < 0.20)
 	{
-		Graveyard.push_back(Bank[Neutron_index]);
-		Bank.erase(Bank.begin() + Neutron_index);
+		PopulateBank(N, 1);
+
+		#pragma omp parallel for schedule(dynamic,1)
+		for (int i = 0; i < N; i++)
+		{
+			int Guard = 0;
+			while (!Bank[i].died && Guard < 1000)
+			{
+				FindNucleus(index_comp, i);
+				Guard++;
+			}
+		}
+
+		std::vector <double> children;
+
+		for (int i = 0; i < N; i++)
+		{
+			children.push_back(Bank[i].children);
+		}
+
+		means.push_back(getMean(children));
+		StdDiv.push_back(getStddiv(children, means.back()));
+		Enrichment.push_back(mixes[index_comp].components[0].rate);
+		std::cout << Enrichment.back() << "\n";
+		EmptyBank();
+
+		mixes[index_comp].components[0].rate = mixes[index_comp].components[0].rate + 0.005;
+		mixes[index_comp].components[1].rate = mixes[index_comp].components[1].rate - 0.005;
+
+	}
+
+	for (size_t i = 0; i < 2; i++)
+	{
+		mixes[index_comp].components[i].rate = old[i];
+	}
+
+	
+
+
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "_Enrichmenttest" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	log << materials[index_comp].Symbol + "\n";
+	log << "mean;StdDiv;Enrichment \n";
+	for (int i = 0; i < means.size(); i++)
+	{
+		log << means[i] << ";" << StdDiv[i] << ";" << Enrichment[i] <<"\n";
+	}
+	return;
+}
+
+void NData::TestGeo(int N)
+{
+	PopulateBank(N, 1);
+	
+	while (Bank[0].died == false)
+	{
+		FindNucleusGeometry(0);
+	}
+
+	int jumps = Bank[0].E.size();
+	return;
+}
+
+void NData::ExternalSource()
+{
+	int M = 10;
+	int N = 100;
+
+	
+	for (int k = 0; k < M; k++)
+	{
+		PopulateBank(N, 1);
+		int Guard_out = 0;
+		do
+		{
+
+			#pragma omp parallel for schedule(dynamic,1)
+			for (int i = 0; i < N; i++)
+			{
+				int Guard = 0;
+				while (!Bank[i].died && Guard < 1000)
+				{
+					FindNucleusGeometry(i);
+					Guard++;
+				}
+			}
+			Teller();
+			Guard_out++;
+			if (Bank.size() == 0)
+			{
+				break;
+			}
+		} while (Guard_out < 5);
+		EmptyBank();
 	}
 
 	return;
+
 }
 

@@ -89,7 +89,7 @@ int subspace::findCellatpoint(double * point)
 			}
 		}
 	}
-	return -1;
+	return boundry_index;
 }
 
 int subspace::printCellID(int order) 

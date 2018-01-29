@@ -29,6 +29,8 @@ public:
 
 	void CellInUniverse(double * point, int top_subspace, int * target);
 
+	double LineLengthUniverse(double * point, double * dir, int top_subspace);
+
 	std::vector <subspace> subspaces;
 private:
 	int N, M;

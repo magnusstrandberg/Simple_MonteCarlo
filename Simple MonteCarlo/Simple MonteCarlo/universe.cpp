@@ -326,10 +326,9 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 
 		double direction[3];
 		Randomdirfrombound(startside, direction);
-		double epsilon = 10e-10;
+		double epsilon = 10e-6;
 		std::vector <std::pair<double, int>> lengths;
 		std::pair <double, int> tmp_data;
-		std::vector <std::pair<double, int>> tmp_list;
 
 		double point[] = { 0,0,0 };
 
@@ -352,9 +351,11 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 			point[2] = subspaces[subspacerank].subspaceranges.z[0] + epsilon;
 		}
 
-
+		int target[] = { 0,0 };
+		CellInUniverse(point, subspacerank, target);
 		do
 		{
+			/*
 			for (size_t i = 0; i < subspaces[subspacerank].cells.size(); i++)
 			{
 				double tmp = subspaces[subspacerank].cells[i].distanceCell(point, direction);
@@ -365,20 +366,19 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 					tmp_list.push_back(tmp_data);
 				}
 			}
+			*/
+				double legnth = LineLengthUniverse(point, direction, subspacerank);
+				tmp_data.first = legnth;
+				tmp_data.second = target[1];
+				lengths.push_back(tmp_data);
 
-			
-				std::sort(tmp_list.begin(), tmp_list.end());
-				tmp_list[0].second = subspaces[subspacerank].findCellatpoint(point);
-				lengths.push_back(tmp_list[0]);
+				point[0] = point[0] + (legnth * direction[0]) + epsilon;
+				point[1] = point[1] + (legnth * direction[1]) + epsilon;
+				point[2] = point[2] + (legnth * direction[2]) + epsilon;
+				CellInUniverse(point, subspacerank, target);
+				
 
-				point[0] = point[0] + tmp_list[0].first * direction[0] + epsilon;
-				point[1] = point[1] + tmp_list[0].first * direction[1] + epsilon;
-				point[2] = point[2] + tmp_list[0].first * direction[2] + epsilon;
-
-				tmp_list.clear();
-			
-
-		} while (subspaces[subspacerank].cells[subspaces[subspacerank].boundry_index].insideCell(point, 0) == 1);
+		} while (target[1] != subspaces[subspacerank].boundry_index);
 
 		std::vector <double> tmp_lengths(subspaces[subspacerank].cells.size() + 1, 0);
 
@@ -569,4 +569,13 @@ void Universe::CellInUniverse(double * point, int top_subspace, int * target)
 	target[0] = target_subspace;
 	target[1] = target_index;
 	return;
+}
+
+double Universe::LineLengthUniverse(double * point, double * dir, int top_subspace)
+{
+	int target[] = {0,0};
+	CellInUniverse(point, top_subspace, target);
+
+	return subspaces[target[0]].cells[target[1]].distanceCell(point, dir);
+
 }
