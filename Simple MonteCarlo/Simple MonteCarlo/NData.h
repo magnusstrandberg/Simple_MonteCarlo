@@ -45,8 +45,12 @@ struct Neutron
 	int cause_of_death;
 	int target[2];
 	int children = 0;
+	bool parent_was_thermal = false;
+	//reaction in second,0 escape,1 captured,2fission,3elastic,4inellastic
+	//What hit What Happen
+	std::vector <std::pair <int, int> > whwh;
 	std::vector <Neutron> offspring;
-	double time,speed;
+	double time,speed, time_born;
 	double path_length = 0;
 	std::vector <double> lengths;
 	int generation;
@@ -100,15 +104,21 @@ public:
 
 	void SlowdownPlotInelastic(int N, int index_comp);
 
-	void Multiplication(int N, int index_comp);
+	void Multiplication(int N, int M, int index_comp);
 
-	void TestEnrichment(int N,int index_comp);
+	void TestEnrichment(int N, int M,int index_comp);
+
+	void FissionTime(int N, int index_comp);
+
+	void fourfactor(int N, int M, int index_comp);
 
 	void TestGeo(int N);
 
 	void ExternalSource();
 
 	void EmptyBank();
+
+	void EmptyGraveyard();
 	
 	
 	std::vector <materialdata> materials;

@@ -484,7 +484,7 @@ void NData::PrintLogLogTotalComp(std::string Symbol)
 
 	std::ofstream log;
 	log.open(logfile, std::ios::out | std::ios::trunc);
-	log << materials[index].Symbol + "\n";
+	log << mixes[index].Name + "\n";
 	log << "Total cross section. \n";
 	log << "****************************************\n";
 
@@ -700,12 +700,22 @@ void NData::FissionReaction(int Neutron_index, int material_index)
 		newN.E.push_back(SampleMaxwell(1.2895));
 		newN.speed = sqrt((2 * newN.E.back() * 1.602e-19) / (1.660e-27));
 		newN.time = Bank[Neutron_index].time;
+		newN.time_born = newN.time;
 		newN.generation = Bank[Neutron_index].generation + 1;
 		double dir[] = { 0,0,0 };
 		IsotropicDirection(dir);
+		newN.Dir[0] = dir[0];
+		newN.Dir[1] = dir[1];
+		newN.Dir[2] = dir[2];
 		newN.Pos[0] = Bank[Neutron_index].Pos[0];
 		newN.Pos[1] = Bank[Neutron_index].Pos[1];
 		newN.Pos[2] = Bank[Neutron_index].Pos[2];
+
+		if (E < 1e-7)
+		{
+			newN.parent_was_thermal = true;
+		}
+
 		Bank[Neutron_index].offspring.push_back(newN);
 	}
 
@@ -798,14 +808,17 @@ void NData::FindReaction(int Material_index, int neutron_index)
 	//Move to reaction based on Mt-nr
 	if (ReactionMt == 2)
 	{
+		Bank[neutron_index].whwh.back().second = 3;
 		ElasticReaction(neutron_index, Material_index);
 	}
 	else if (ReactionMt == 18)
 	{
+		Bank[neutron_index].whwh.back().second = 2;
 		FissionReaction(neutron_index, Material_index);
 	}
 	else if (51 <= ReactionMt && ReactionMt <= 90)
 	{
+		Bank[neutron_index].whwh.back().second = 4;
 		double Q = materials[Material_index].MT_data[Rates[Index_inelastic].first].Q_value;
 		InElasticReactions(neutron_index, Material_index, Q);
 	}
@@ -815,6 +828,7 @@ void NData::FindReaction(int Material_index, int neutron_index)
 	}
 	else if (102 <= ReactionMt && ReactionMt <= 107)
 	{
+		Bank[neutron_index].whwh.back().second = 1;
 		CaptureReaction(neutron_index);
 	}
 
@@ -871,6 +885,9 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 	{
 		if (choosyboi < Rates[i])
 		{
+			std::pair <int, int> tmp_pair;
+			Bank[neutron_index].whwh.push_back(tmp_pair);
+			Bank[neutron_index].whwh.back().first = mixes[Mix_nr].components[i - 1].Material_index;
 			FindReaction(mixes[Mix_nr].components[i-1].Material_index, neutron_index);
 			return;
 		}
@@ -968,6 +985,7 @@ void NData::PopulateBank(int Amount, double startingE)
 	tmp.Pos[2] = tmp_pos[2];
 	tmp.speed = sqrt((2 * startingE * 1.602e-19) / (1.660e-27));
 	tmp.time = 0.0;
+	tmp.time_born = 0.0;
 	tmp.generation = 0;
 
 	for (int i = 0; i < Amount; i++)
@@ -1032,6 +1050,11 @@ void NData::Teller()
 void NData::EmptyBank()
 {
 	Bank.erase(Bank.begin(), Bank.end());
+}
+
+void NData::EmptyGraveyard()
+{
+	Graveyard.erase(Graveyard.begin(), Graveyard.end());
 }
 
 void NData::SlowdownPlot(int N, int index_comp) 
@@ -1144,67 +1167,330 @@ void NData::SlowdownPlotInelastic(int N, int index_comp)
 	return;
 }
 
-void NData::Multiplication(int N, int index_comp)
+void NData::Multiplication(int N, int M, int index_comp)
 {
+	int generations = 5;
+	std::vector <std::vector <double> > Childrens_means(M);
+	std::vector <std::vector <int> > Nucleus_Reactions(M);
+	std::vector <std::vector <int> > Neutrons_per_gen(M);
 
-
-	PopulateBank(N, 1);
-
-#pragma omp parallel for schedule(dynamic,1)
-	for (int i = 0; i < N; i++)
+	for (int k = 0; k < M; k++)
 	{
-		int Guard = 0;
-		while (!Bank[i].died && Guard < 1000)
+		std::vector <double> children_gen_means(generations,0);
+		std::vector <int> neutrons_per_gen(generations, 0);
+		
+		PopulateBank(N, 1);
+		int Guard_out = 0;
+		do
 		{
-			FindNucleus(index_comp, i);
-			Guard++;
+
+			#pragma omp parallel for schedule(dynamic,1)
+			for (int i = 0; i < Bank.size(); i++)
+			{
+				int Guard = 0;
+				while (!Bank[i].died && Guard < 1000)
+				{
+					FindNucleus(index_comp,i);
+					Guard++;
+				}
+			}
+
+			Teller();
+			Guard_out++;
+			if (Bank.size() == 0)
+			{
+				break;
+			}
+		} while (Guard_out < generations);
+
+		for (int k = 0; k < generations; k++)
+		{
+			std::vector <double> children;
+
+			for (int i = 0; i < Graveyard.size(); i++)
+			{
+				if (Graveyard[i].generation == k)
+				{
+					children.push_back(Graveyard[i].children);
+				}
+			}
+			if (children.size())
+			{
+				children_gen_means[k] = getMean(children);
+			}
 		}
+
+		Childrens_means[k] = children_gen_means;
+
+		int size = mixes[index_comp].components.size() * 4;
+		std::vector <int> nucleus_reactions(size,0);
+		//sorting nucleus and reaction
+
+		std::vector <int> material_indexes;
+		for (size_t i = 0; i < mixes[index_comp].components.size(); i++)
+		{
+			material_indexes.push_back(mixes[index_comp].components[i].Material_index);
+		}
+
+		for (int i = 0; i < mixes[index_comp].components.size(); i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				for (int m = 0; m < Graveyard.size(); m++)
+				{
+					for (int n = 0; n < Graveyard[m].whwh.size(); n++)
+					{
+						if (material_indexes[i] == Graveyard[m].whwh[n].first && j == Graveyard[m].whwh[n].second-1)
+						{
+							nucleus_reactions[(4 * i) + j]++;
+						}
+					}
+				}
+			}
+		}
+		Nucleus_Reactions[k] = nucleus_reactions;
+
+		for (int i = 0; i < Graveyard.size(); i++)
+		{
+			for (int j = 0; j < generations; j++)
+			{
+				if (Graveyard[i].generation == j)
+				{
+					neutrons_per_gen[j]++;
+				}
+			}
+		}
+		Neutrons_per_gen[k] = neutrons_per_gen;
+		std::cout << k <<"\n";
+		EmptyBank();
+		EmptyGraveyard();
 	}
 
-	std::vector <double> children;
-
-	for (int i = 0; i < N; i++)
+	//Data proccessing
+	std::vector <double> Nucleus_reaction_means(Nucleus_Reactions[0].size(),0);
+	std::vector <double> Nucleus_reaction_stddiv(Nucleus_Reactions[0].size(),0);
+	for (int i = 0; i < Nucleus_Reactions[0].size(); i++)
 	{
-		children.push_back(Bank[i].children);
+		std::vector <double> tmp;
+		for (int j = 0; j < Nucleus_Reactions.size(); j++)
+		{
+			tmp.push_back(Nucleus_Reactions[j][i]);
+		}
+		Nucleus_reaction_means[i] = getMean(tmp);
+		Nucleus_reaction_stddiv[i] = getStddiv(tmp, Nucleus_reaction_means[i]);
 	}
 
-	double mean = getMean(children);
-	double StdDiv = getStddiv(children, mean);
+	std::vector <double> generation_means(generations);
+	std::vector <double> generation_stddiv(generations);
 
-	Teller();
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Childrens_means[j][i]);
+		}
+		generation_means[i] = getMean(tmp);
+		generation_stddiv[i] = getStddiv(tmp, generation_means[i]);
+	}
+
+	std::vector <double> neutron_means(generations);
+	std::vector <double> neutron_stddiv(generations);
+
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Neutrons_per_gen[j][i]);
+		}
+		neutron_means[i] = getMean(tmp);
+		neutron_stddiv[i] = getStddiv(tmp, neutron_means[i]);
+	}
+
 
 	std::string logfile;
 
-	logfile = mixes[index_comp].Name + "_test" + ".txt";
+	logfile = mixes[index_comp].Name + "Multiplication" + ".txt";
 
 	std::ofstream log;
 	log.open(logfile, std::ios::out | std::ios::trunc);
-	log << materials[index_comp].Symbol + "\n";
-	log << "mean;StdDiv \n";
-	log << mean << ";" << StdDiv;
+	log << "Output for multiplication of " << mixes[index_comp].Name << "\n";
+	log << "Mean fission nuetrons created per generation were:";
+	for (int i = 0; i < generations; i++)
+	{
+		log << "Generation " << i << " mean " << generation_means[i] << " stdDiv of " << generation_stddiv[i]; 
+		log << " with an average of "<< neutron_means[i] << " neutrons and a stdDiv of "<< neutron_stddiv[i] <<"\n";
+	}
+
+	log << "Average material hits and reaction typs: \n";
+
+	for (int i = 0; i < mixes[index_comp].components.size(); i++)
+	{
+		log << "Material: " << materials[mixes[index_comp].components[i].Material_index].Symbol << "\n";
+		log << "Capture: " << Nucleus_reaction_means[4 * i] << " StdDiv: " << Nucleus_reaction_stddiv[4 * i] << "\n";
+		log << "Fission: " << Nucleus_reaction_means[(4 * i) +1] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 1] << "\n";
+		log << "Elastic: " << Nucleus_reaction_means[(4 * i) +2] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 2] << "\n";
+		log << "Inelastic: " << Nucleus_reaction_means[(4 * i) +3] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 3] << "\n";
+	}
+	
 	
 	return;
 }
 
-void NData::TestEnrichment(int N, int index_comp)
+void NData::TestEnrichment(int N, int M, int index_comp)
 //Uranium must be first in Composit and must be so that 235 is first
 {
-	std::vector <double> old;
-	for (size_t i = 0; i < 2; i++)
+	int generations = 10;
+	std::vector <std::vector <double> > Childrens_means(M);
+	std::vector <std::vector <int> > Neutrons_per_gen(M);
+
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "Criticality test" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+
+	if (materials[mixes[index_comp].components[0].Material_index].Symbol != "U-235" || materials[mixes[index_comp].components[1].Material_index].Symbol != "U-238")
 	{
-		old.push_back(mixes[index_comp].components[i].rate);
+		log << "Error! Make sure U-235 is first material of composit and U-238 second!";
+		return;
 	}
-	
-	std::vector <double> means;
-	std::vector <double> StdDiv;
-	std::vector <double> Enrichment;
 
-	while (mixes[index_comp].components[0].rate/mixes[index_comp].components[1].rate < 0.20)
+	log << "Output for multiplication of " << mixes[index_comp].Name << "\n";
+	log << "\n";
+
+	Composit old = mixes[index_comp];
+
+	//Make it loop
+	while (mixes[index_comp].components[0].rate <= 0.07)
 	{
-		PopulateBank(N, 1);
 
-		#pragma omp parallel for schedule(dynamic,1)
-		for (int i = 0; i < N; i++)
+		for (int k = 0; k < M; k++)
+		{
+			std::vector <double> children_gen_means(generations, 0);
+			std::vector <int> neutrons_per_gen(generations, 0);
+
+			PopulateBank(N, 1);
+			int Guard_out = 0;
+			do
+			{
+
+#pragma omp parallel for schedule(dynamic,1)
+				for (int i = 0; i < Bank.size(); i++)
+				{
+					int Guard = 0;
+					while (!Bank[i].died && Guard < 1000)
+					{
+						FindNucleus(index_comp, i);
+						Guard++;
+					}
+				}
+
+				Teller();
+				Guard_out++;
+				if (Bank.size() == 0)
+				{
+					break;
+				}
+			} while (Guard_out < generations);
+
+			for (int k = 0; k < generations; k++)
+			{
+				std::vector <double> children;
+
+				for (int i = 0; i < Graveyard.size(); i++)
+				{
+					if (Graveyard[i].generation == k)
+					{
+						children.push_back(Graveyard[i].children);
+					}
+				}
+				if (children.size())
+				{
+					children_gen_means[k] = getMean(children);
+				}
+			}
+
+			Childrens_means[k] = children_gen_means;
+
+			int size = mixes[index_comp].components.size() * 4;
+
+			for (int i = 0; i < Graveyard.size(); i++)
+			{
+				for (int j = 0; j < generations; j++)
+				{
+					if (Graveyard[i].generation == j)
+					{
+						neutrons_per_gen[j]++;
+					}
+				}
+			}
+			Neutrons_per_gen[k] = neutrons_per_gen;
+			EmptyBank();
+			EmptyGraveyard();
+		}
+
+		//Data proccessing
+		std::vector <double> generation_means(generations);
+		std::vector <double> generation_stddiv(generations);
+
+		for (int i = 1; i < generations; i++)
+		{
+			std::vector <double> tmp;
+			for (int j = 0; j < M; j++)
+			{
+				tmp.push_back(Childrens_means[j][i]);
+			}
+			generation_means[i] = getMean(tmp);
+			generation_stddiv[i] = getStddiv(tmp, generation_means[i]);
+		}
+
+		for (int i = 0; i < mixes[index_comp].components.size(); i++)
+		{
+			log << materials[mixes[index_comp].components[i].Material_index].Symbol << " ratio is " << mixes[index_comp].components[i].rate << "\n";
+		}
+		
+		double avg_fission = getMean(generation_means);
+		double enrichment = mixes[index_comp].components[0].rate / (mixes[index_comp].components[0].rate + mixes[index_comp].components[1].rate);
+
+
+		log << avg_fission << ";" << enrichment << "\n";
+
+
+		mixes[index_comp].components[0].rate += 0.005;
+		mixes[index_comp].components[1].rate -= 0.005;
+
+
+	}
+
+	mixes[index_comp] = old;
+
+	return;
+}
+
+void NData::FissionTime(int N, int index_comp)
+{
+	int generations = 5;
+	
+	std::string logfile;
+
+	logfile = mixes[index_comp].Name + "Time" + ".txt";
+
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	log << "time_born;generation \n";
+
+	
+
+	PopulateBank(N, 1);
+	int Guard_out = 0;
+	do
+	{
+
+	#pragma omp parallel for schedule(dynamic,1)
+		for (int i = 0; i < Bank.size(); i++)
 		{
 			int Guard = 0;
 			while (!Bank[i].died && Guard < 1000)
@@ -1214,44 +1500,249 @@ void NData::TestEnrichment(int N, int index_comp)
 			}
 		}
 
-		std::vector <double> children;
-
-		for (int i = 0; i < N; i++)
+		Teller();
+		Guard_out++;
+		if (Bank.size() == 0)
 		{
-			children.push_back(Bank[i].children);
+			break;
+		}
+	} while (Guard_out < generations);
+
+	for (int i = 0; i < Graveyard.size(); i++)
+	{
+		if (Graveyard[i].time_born >= 1E-8 )
+		{
+			log << Graveyard[i].time_born << ";" << Graveyard[i].generation << "\n";
+		}
+	}
+	
+	EmptyBank();
+	EmptyGraveyard();
+
+
+	return;
+}
+
+void NData::fourfactor(int N, int M, int index_comp)
+{
+	int generations = 5;
+	std::vector <std::vector <double> > Childrens_means(M);
+	std::vector <std::vector <int> > Nucleus_Reactions(M);
+	std::vector <std::vector <int> > Neutrons_per_gen(M);
+	std::vector <std::vector <int> > Neutrons_thema_fission(M);
+	std::vector <std::vector <int> > Neutrons_made_it_to_themal(M);
+
+	for (int k = 0; k < M; k++)
+	{
+		std::vector <double> children_gen_means(generations, 0);
+		std::vector <int> neutrons_per_gen(generations, 0);
+		std::vector <int> neutrons_made_it_to_themal(generations, 0);
+		std::vector <int> neutrons_made_from_thermal(generations, 0);
+
+		PopulateBank(N, 1);
+		int Guard_out = 0;
+		do
+		{
+
+#pragma omp parallel for schedule(dynamic,1)
+			for (int i = 0; i < Bank.size(); i++)
+			{
+				int Guard = 0;
+				while (!Bank[i].died && Guard < 1000)
+				{
+					FindNucleus(index_comp, i);
+					Guard++;
+				}
+			}
+
+			Teller();
+			Guard_out++;
+			if (Bank.size() == 0)
+			{
+				break;
+			}
+		} while (Guard_out < generations);
+
+		for (int k = 0; k < generations; k++)
+		{
+			std::vector <double> children;
+			
+
+			for (int i = 0; i < Graveyard.size(); i++)
+			{
+				if (Graveyard[i].generation == k)
+				{
+					children.push_back(Graveyard[i].children);
+				}
+			}
+			if (children.size())
+			{
+				children_gen_means[k] = getMean(children);
+			}
 		}
 
-		means.push_back(getMean(children));
-		StdDiv.push_back(getStddiv(children, means.back()));
-		Enrichment.push_back(mixes[index_comp].components[0].rate);
-		std::cout << Enrichment.back() << "\n";
+		Childrens_means[k] = children_gen_means;
+
+		int size = mixes[index_comp].components.size() * 4;
+		std::vector <int> nucleus_reactions(size, 0);
+		//sorting nucleus and reaction
+
+		std::vector <int> material_indexes;
+		for (size_t i = 0; i < mixes[index_comp].components.size(); i++)
+		{
+			material_indexes.push_back(mixes[index_comp].components[i].Material_index);
+		}
+
+		for (int i = 0; i < mixes[index_comp].components.size(); i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				for (int m = 0; m < Graveyard.size(); m++)
+				{
+					for (int n = 0; n < Graveyard[m].whwh.size(); n++)
+					{
+						if (material_indexes[i] == Graveyard[m].whwh[n].first && j == Graveyard[m].whwh[n].second - 1)
+						{
+							nucleus_reactions[(4 * i) + j]++;
+						}
+					}
+				}
+			}
+		}
+		Nucleus_Reactions[k] = nucleus_reactions;
+
+		for (int i = 0; i < Graveyard.size(); i++)
+		{
+			for (int j = 0; j < generations; j++)
+			{
+				if (Graveyard[i].generation == j)
+				{
+					neutrons_per_gen[j]++;
+					
+					if (Graveyard[i].E.back() <= 1e-7)
+					{
+						neutrons_made_it_to_themal[j]++;
+					}
+					if (Graveyard[i].parent_was_thermal)
+					{
+						neutrons_made_from_thermal[j]++;
+					}
+				}
+			}
+		}
+		Neutrons_per_gen[k] = neutrons_per_gen;
+		Neutrons_made_it_to_themal[k] = neutrons_made_it_to_themal;
+		Neutrons_thema_fission[k] = neutrons_made_from_thermal;
 		EmptyBank();
-
-		mixes[index_comp].components[0].rate = mixes[index_comp].components[0].rate + 0.005;
-		mixes[index_comp].components[1].rate = mixes[index_comp].components[1].rate - 0.005;
-
+		EmptyGraveyard();
+		std::cout << k << "\n";
 	}
 
-	for (size_t i = 0; i < 2; i++)
+	//Data proccessing
+	std::vector <double> Nucleus_reaction_means(Nucleus_Reactions[0].size(), 0);
+	std::vector <double> Nucleus_reaction_stddiv(Nucleus_Reactions[0].size(), 0);
+	for (int i = 0; i < Nucleus_Reactions[0].size(); i++)
 	{
-		mixes[index_comp].components[i].rate = old[i];
+		std::vector <double> tmp;
+		for (int j = 0; j < Nucleus_Reactions.size(); j++)
+		{
+			tmp.push_back(Nucleus_Reactions[j][i]);
+		}
+		Nucleus_reaction_means[i] = getMean(tmp);
+		Nucleus_reaction_stddiv[i] = getStddiv(tmp, Nucleus_reaction_means[i]);
 	}
 
-	
+	std::vector <double> generation_means(generations);
+	std::vector <double> generation_stddiv(generations);
 
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Childrens_means[j][i]);
+		}
+		generation_means[i] = getMean(tmp);
+		generation_stddiv[i] = getStddiv(tmp, generation_means[i]);
+	}
+
+	std::vector <double> neutron_means(generations);
+	std::vector <double> neutron_stddiv(generations);
+
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Neutrons_per_gen[j][i]);
+		}
+		neutron_means[i] = getMean(tmp);
+		neutron_stddiv[i] = getStddiv(tmp, neutron_means[i]);
+	}
+
+	std::vector <double> made_it_to_themal(generations);
+
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Neutrons_made_it_to_themal[j][i]);
+		}
+		made_it_to_themal[i] = getMean(tmp);
+	}
+
+	std::vector <double> made_from_fission(generations);
+
+	for (int i = 0; i < generations; i++)
+	{
+		std::vector <double> tmp;
+		for (int j = 0; j < M; j++)
+		{
+			tmp.push_back(Neutrons_thema_fission[j][i]);
+		}
+		made_from_fission[i] = getMean(tmp);
+	}
+
+	std::vector <double> p(generations);
+	for (int i = 0; i < generations; i++)
+	{
+		if (neutron_means[i] > 0)
+		{
+			p[i] = made_from_fission[i] / neutron_means[i];
+		}
+	}
 
 	std::string logfile;
 
-	logfile = mixes[index_comp].Name + "_Enrichmenttest" + ".txt";
+	logfile = mixes[index_comp].Name + "fourfactor_test" + ".txt";
 
 	std::ofstream log;
 	log.open(logfile, std::ios::out | std::ios::trunc);
-	log << materials[index_comp].Symbol + "\n";
-	log << "mean;StdDiv;Enrichment \n";
-	for (int i = 0; i < means.size(); i++)
+	log << "Output for multiplication of " << mixes[index_comp].Name << "\n";
+	log << "Mean fission nuetrons created per generation were: \n";
+	for (int i = 0; i < generations; i++)
 	{
-		log << means[i] << ";" << StdDiv[i] << ";" << Enrichment[i] <<"\n";
+		log << "Generation " << i << " mean " << generation_means[i] << " stdDiv of " << generation_stddiv[i];
+		log << " with an average of " << neutron_means[i] << " neutrons and a stdDiv of " << neutron_stddiv[i] << "\n";
+		log << "This Generation " << made_from_fission[i] << " were made from thermal fission neutrons, and p was " << p[i] << "\n";
+
 	}
+
+	log << "Average material hits and reaction typs: \n";
+
+	for (int i = 0; i < mixes[index_comp].components.size(); i++)
+	{
+		log << "Material: " << materials[mixes[index_comp].components[i].Material_index].Symbol << "\n";
+		log << "Capture: " << Nucleus_reaction_means[4 * i] << " StdDiv: " << Nucleus_reaction_stddiv[4 * i] << "\n";
+		log << "Fission: " << Nucleus_reaction_means[(4 * i) + 1] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 1] << "\n";
+		log << "Elastic: " << Nucleus_reaction_means[(4 * i) + 2] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 2] << "\n";
+		log << "Inelastic: " << Nucleus_reaction_means[(4 * i) + 3] << " StdDiv: " << Nucleus_reaction_stddiv[(4 * i) + 3] << "\n";
+	}
+
+	log << "\n" << "\n";
+
+
 	return;
 }
 

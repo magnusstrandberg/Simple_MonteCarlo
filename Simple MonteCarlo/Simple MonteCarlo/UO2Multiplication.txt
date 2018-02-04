@@ -1,0 +1,35 @@
+Output for multiplication of UO2
+
+Mean fission nuetrons created per generation were:
+
+Generation 0 mean 0.00999 stdDiv of 0.00527161 with an average of 1000 neutrons and a stdDiv of 0
+
+Generation 1 mean 0.702175 stdDiv of 0.455157 with an average of 9.99 neutrons and a stdDiv of 5.27161
+
+Generation 2 mean 0.613455 stdDiv of 0.494105 with an average of 7.04 neutrons and a stdDiv of 5.27811
+
+Generation 3 mean 0.428364 stdDiv of 0.559076 with an average of 5.19 neutrons and a stdDiv of 5.20326
+
+Generation 4 mean 0.404889 stdDiv of 0.565301 with an average of 2.76 neutrons and a stdDiv of 3.49319
+
+Average material hits and reaction typs: 
+
+Material: U-238
+
+Capture: 1014.51 StdDiv: 9.5734
+
+Fission: 10.21 StdDiv: 6.74877
+
+Elastic: 37303.5 StdDiv: 879.583
+
+Inelastic: 0 StdDiv: 0
+
+Material: O-16
+
+Capture: 0.26 StdDiv: 0.502394
+
+Fission: 0 StdDiv: 0
+
+Elastic: 28515.8 StdDiv: 584.116
+
+Inelastic: 0 StdDiv: 0

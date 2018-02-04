@@ -28,21 +28,21 @@ int main()
 	input_data.fileReader(filelocation);
 	Universe uni;
 	uni.buildSubspaces(input_data);
+	
 
-	uni.calculateVolumes(0);
-	//uni.calculateVolumes(2);
-	uni.CalculateLineVolume(0);
-	//uni.CalculateLineVolume(2);
-	/*
+	
 	string log = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\listofmaterial.txt";
 	NData Nucleardata;
 	Nucleardata.readlist(log);
-	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits.txt";
+	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits_2.txt";
 	Nucleardata.BuildComps(comps);
 	Nucleardata.AddGeom(uni,0);
-	Nucleardata.ExternalSource();
-	*/
-	
+	//Nucleardata.Multiplication(1000, 100, 0);
+	//Nucleardata.Multiplication(1000, 100, 1);
+	//Nucleardata.fourfactor(100, 50, 2);
+	Nucleardata.FissionTime(1000, 2);
+	Nucleardata.FissionTime(1000, 3);
+
 	return 0;
 }
 

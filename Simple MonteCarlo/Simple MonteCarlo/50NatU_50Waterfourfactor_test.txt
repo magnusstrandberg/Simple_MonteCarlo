@@ -1,0 +1,35 @@
+Output for multiplication of 50NatU_50Water
+Mean fission nuetrons created per generation were: 
+Generation 0 mean 0.4494 stdDiv of 0.107933 with an average of 100 neutrons and a stdDiv of 0
+This Generation 0 were made from thermal fission neutrons, and p was 0
+Generation 1 mean 0.767925 stdDiv of 0.223204 with an average of 44.94 neutrons and a stdDiv of 10.7933
+This Generation 18.68 were made from thermal fission neutrons, and p was 0.415665
+Generation 2 mean 0.825536 stdDiv of 0.178479 with an average of 34.58 neutrons and a stdDiv of 13.0032
+This Generation 7.14 were made from thermal fission neutrons, and p was 0.206478
+Generation 3 mean 0.78522 stdDiv of 0.25133 with an average of 28.56 neutrons and a stdDiv of 12.5222
+This Generation 4.88 were made from thermal fission neutrons, and p was 0.170868
+Generation 4 mean 0.727941 stdDiv of 0.294774 with an average of 23.1 neutrons and a stdDiv of 12.816
+This Generation 4.22 were made from thermal fission neutrons, and p was 0.182684
+Average material hits and reaction typs: 
+Material: U-235
+Capture: 11.4 StdDiv: 3.84708
+Fission: 40.1 StdDiv: 12.2446
+Elastic: 21.2 StdDiv: 5.63205
+Inelastic: 1.46 StdDiv: 1.22
+Material: U-238
+Capture: 159.86 StdDiv: 22.0518
+Fission: 18.12 StdDiv: 9.62837
+Elastic: 3021.64 StdDiv: 566.146
+Inelastic: 301.04 StdDiv: 60.202
+Material: H-1
+Capture: 1.42 StdDiv: 1.2015
+Fission: 0 StdDiv: 0
+Elastic: 1933.78 StdDiv: 341.494
+Inelastic: 0 StdDiv: 0
+Material: O-16
+Capture: 0.22 StdDiv: 0.46
+Fission: 0 StdDiv: 0
+Elastic: 307.1 StdDiv: 51.2294
+Inelastic: 0.04 StdDiv: 0.195959
+
+

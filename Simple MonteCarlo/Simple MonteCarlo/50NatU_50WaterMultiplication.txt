@@ -1,0 +1,27 @@
+Output for multiplication of 50NatU_50Water
+Mean fission nuetrons created per generation were:Generation 0 mean 0.46444 stdDiv of 0.0266073 with an average of 1000 neutrons and a stdDiv of 0
+Generation 1 mean 0.940806 stdDiv of 0.0566174 with an average of 464.44 neutrons and a stdDiv of 26.6073
+Generation 2 mean 0.951302 stdDiv of 0.0623839 with an average of 437.08 neutrons and a stdDiv of 37.8063
+Generation 3 mean 0.937058 stdDiv of 0.0591953 with an average of 415.58 neutrons and a stdDiv of 43.595
+Generation 4 mean 0.949516 stdDiv of 0.0640178 with an average of 390.18 neutrons and a stdDiv of 53.9652
+Average material hits and reaction typs: 
+Material: U-235
+Capture: 119.36 StdDiv: 9.61095
+Fission: 442.7 StdDiv: 36.6132
+Elastic: 247.97 StdDiv: 21.2285
+Inelastic: 0 StdDiv: 0
+Material: U-238
+Capture: 1767.35 StdDiv: 70.8475
+Fission: 359.17 StdDiv: 41.7627
+Elastic: 35647.4 StdDiv: 1803.92
+Inelastic: 0 StdDiv: 0
+Material: H-1
+Capture: 14.79 StdDiv: 3.68591
+Fission: 0 StdDiv: 0
+Elastic: 22121.9 StdDiv: 1120
+Inelastic: 0 StdDiv: 0
+Material: O-16
+Capture: 2.89 StdDiv: 1.71985
+Fission: 0 StdDiv: 0
+Elastic: 3862.66 StdDiv: 187.557
+Inelastic: 0 StdDiv: 0

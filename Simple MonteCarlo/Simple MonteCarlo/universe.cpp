@@ -267,6 +267,7 @@ void Universe::CalculateLineVolume(int subspacerank)
 	for (int i = 0; i < M; i++)
 	{
 		volpercentages[i] = lineCalc(subspacerank);
+		std::cout << i << "\n";
 	}
 
 	double T = t.calcStop();
@@ -324,9 +325,9 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 
 		int startside = floor(dis(gen) * 3);
 
-		double direction[3];
-		Randomdirfrombound(startside, direction);
-		double epsilon = 10e-6;
+		double direction[] = { 0,0,0 };
+		//Randomdirfrombound(startside, direction);
+		double epsilon = 10e-5;
 		std::vector <std::pair<double, int>> lengths;
 		std::pair <double, int> tmp_data;
 
@@ -337,46 +338,49 @@ std::vector<double> Universe::lineCalc(int subspacerank)
 			point[0] = subspaces[subspacerank].subspaceranges.x[0] + epsilon;
 			point[1] = ( dis(gen) * subspaces[subspacerank].y_r ) + subspaces[subspacerank].subspaceranges.y[0];
 			point[2] = ( dis(gen) * subspaces[subspacerank].z_r ) + subspaces[subspacerank].subspaceranges.z[0];
+			direction[0] = 1;
 		}
 		else if (startside == 1)
 		{
 			point[0] = (dis(gen) * subspaces[subspacerank].x_r) + subspaces[subspacerank].subspaceranges.x[0];
 			point[1] = subspaces[subspacerank].subspaceranges.y[0] + epsilon;
 			point[2] = (dis(gen) * subspaces[subspacerank].z_r ) + subspaces[subspacerank].subspaceranges.z[0];
+			direction[1] = 1;
 		}
 		else
 		{
 			point[0] = (dis(gen) * subspaces[subspacerank].x_r ) + subspaces[subspacerank].subspaceranges.x[0];
 			point[1] = (dis(gen) * subspaces[subspacerank].y_r ) + subspaces[subspacerank].subspaceranges.y[0];
 			point[2] = subspaces[subspacerank].subspaceranges.z[0] + epsilon;
+			direction[2] = 1;
 		}
 
 		int target[] = { 0,0 };
 		CellInUniverse(point, subspacerank, target);
 		do
 		{
-			/*
-			for (size_t i = 0; i < subspaces[subspacerank].cells.size(); i++)
-			{
-				double tmp = subspaces[subspacerank].cells[i].distanceCell(point, direction);
-				if (0.0 < tmp)
+				double length = LineLengthUniverse(point, direction, subspacerank);
+				if (length < 0)
 				{
-					tmp_data.first = tmp;
-					tmp_data.second = -1;
-					tmp_list.push_back(tmp_data);
+					break;
 				}
-			}
-			*/
-				double legnth = LineLengthUniverse(point, direction, subspacerank);
-				tmp_data.first = legnth;
+
+				tmp_data.first = length;
 				tmp_data.second = target[1];
+
 				lengths.push_back(tmp_data);
 
-				point[0] = point[0] + (legnth * direction[0]) + epsilon;
-				point[1] = point[1] + (legnth * direction[1]) + epsilon;
-				point[2] = point[2] + (legnth * direction[2]) + epsilon;
+				point[0] = point[0] + (length * direction[0]) + epsilon;
+				point[1] = point[1] + (length * direction[1]) + epsilon;
+				point[2] = point[2] + (length * direction[2]) + epsilon;
 				CellInUniverse(point, subspacerank, target);
 				
+				if (point[0] > subspaces[subspacerank].subspaceranges.x[1] 
+					|| point[1] > subspaces[subspacerank].subspaceranges.y[1] 
+					|| point[2] > subspaces[subspacerank].subspaceranges.z[1])
+				{
+					break;
+				}
 
 		} while (target[1] != subspaces[subspacerank].boundry_index);
 
