@@ -35,11 +35,24 @@ struct Composit
 	std::vector <Mix_rates> components;
 };
 
+struct Track_length
+{
+	int target[2]; //for cell
+	double path_length;
+	double macrocross;
+	int material_index;
+	double neutron_dens;
+	//0 escape, 1 surface cross, Mt-nr 
+	int reaction_type;
+
+};
+
 struct Neutron 
 {
 	std::vector <double> E;
 	double Dir[3];
 	double Pos[3];
+	std::vector <std::vector <double> > Position_history;
 	bool died = false;
 	// 0 escape,1 captured,2fission
 	int cause_of_death;
@@ -49,10 +62,10 @@ struct Neutron
 	//reaction in second,0 escape,1 captured,2fission,3elastic,4inellastic
 	//What hit What Happen
 	std::vector <std::pair <int, int> > whwh;
+	std::vector <Track_length> TLE;
 	std::vector <Neutron> offspring;
 	double time,speed, time_born;
 	double path_length = 0;
-	std::vector <double> lengths;
 	int generation;
 };
 
@@ -114,7 +127,14 @@ public:
 
 	void TestGeo(int N);
 
-	void ExternalSource();
+	void Tally();
+
+	void Analog(std::vector<std::vector<std::vector<Track_length>>> data, int N);
+
+	void TrackLengthEstimator(std::vector<std::vector<std::vector<Track_length>>> data, int N);
+
+	void ExternalSource(int N, int M);
+
 
 	void EmptyBank();
 
@@ -125,6 +145,7 @@ public:
 	std::vector <Composit> mixes;
 	std::vector <Neutron> Bank;
 	std::vector <Neutron> Graveyard;
+	std::vector <std::vector <std::vector <Track_length> > > TLE_M;
 	Universe Geometry;
 	int top_uni;
 };

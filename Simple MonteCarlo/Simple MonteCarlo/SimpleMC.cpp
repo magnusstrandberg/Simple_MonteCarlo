@@ -23,7 +23,7 @@ void testInputSubspace(Input);
 
 int main()
 {
-	string filelocation = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\input.txt";
+	string filelocation = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\input_3.txt";
 	Input input_data;
 	input_data.fileReader(filelocation);
 	Universe uni;
@@ -37,11 +37,8 @@ int main()
 	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits_2.txt";
 	Nucleardata.BuildComps(comps);
 	Nucleardata.AddGeom(uni,0);
-	//Nucleardata.Multiplication(1000, 100, 0);
-	//Nucleardata.Multiplication(1000, 100, 1);
-	//Nucleardata.fourfactor(100, 50, 2);
-	Nucleardata.FissionTime(1000, 2);
-	Nucleardata.FissionTime(1000, 3);
+	Nucleardata.ExternalSource(500, 100);
+	
 
 	return 0;
 }

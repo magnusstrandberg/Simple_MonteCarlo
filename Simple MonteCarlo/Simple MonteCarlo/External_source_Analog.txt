@@ -1,0 +1,27 @@
+External source test 
+ All scores normalized by the ellastic reaction in water. 
+ 
+Cell: Air
+Reaction: 2
+Mean count: 9.98243e-07 with a StdDiv of: 4.35124e-06
+Reaction: 103
+Mean count: 1.99649e-07 with a StdDiv of: 1.98648e-06
+
+Cell: Water
+Reaction: 2
+Mean count: 1 with a StdDiv of: 0.038296
+Reaction: 102
+Mean count: 0.00786036 with a StdDiv of: 0.000181038
+
+Cell: Iron
+Reaction: 2
+Mean count: 0.00225942 with a StdDiv of: 0.000381
+Reaction: 51
+Mean count: 7.98594e-07 with a StdDiv of: 3.9123e-06
+Reaction: 102
+Mean count: 0.000427448 with a StdDiv of: 9.06631e-05
+
+Cell: Outside
+Reaction: 0
+Mean count: 0.00162554 with a StdDiv of: 0.000169388
+

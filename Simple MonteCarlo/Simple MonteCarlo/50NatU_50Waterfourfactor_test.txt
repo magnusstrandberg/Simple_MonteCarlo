@@ -32,4 +32,5 @@ Fission: 0 StdDiv: 0
 Elastic: 307.1 StdDiv: 51.2294
 Inelastic: 0.04 StdDiv: 0.195959
 
+eta = 48.4000 / 229 = 0.2114
 

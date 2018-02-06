@@ -801,11 +801,13 @@ void NData::FindReaction(int Material_index, int neutron_index)
 		if (choosyboi <= Rates[i].second)
 		{
 			ReactionMt = materials[Material_index].MT_data[Rates[i].first].MT_number;
+			Bank[neutron_index].TLE.back().macrocross = Cross_N[i - 1] * Bank[neutron_index].TLE.back().neutron_dens;
 			Index_inelastic = i;
 			break;
 		}
 	}
 	//Move to reaction based on Mt-nr
+	Bank[neutron_index].TLE.back().reaction_type = ReactionMt;
 	if (ReactionMt == 2)
 	{
 		Bank[neutron_index].whwh.back().second = 3;
@@ -844,11 +846,11 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 	std::uniform_real_distribution<> dis(0, 1);
 	//dis(gen)
 
+
 	double E = Bank[neutron_index].E.back();
 	if (E < 9.9E-12 )
 	{
-		Bank[neutron_index].died = true;
-		return;
+		Bank[neutron_index].E.back() = 1.0E-11;
 	}
 	//Calculate total crosssection of composition.
 	double total_cross=0;
@@ -903,23 +905,33 @@ void NData::FindNucleusGeometry(int neutron_index)
 	std::uniform_real_distribution<> dis(0, 1);
 	//dis(gen)
 
+	
+	//start new TLE and analog tally
+	Track_length dummy;
+	Bank[neutron_index].TLE.push_back(dummy);
+
 	double E = Bank[neutron_index].E.back();
 	if (E < 9.9E-12)
 	{
-		Bank[neutron_index].died = true;
-		return;
+		Bank[neutron_index].E.back() = 1.0E-11;
 	}
 	//Calculate total crosssection of composition.
 	double total_cross = 0;
 
 	Geometry.CellInUniverse(Bank[neutron_index].Pos, top_uni, Bank[neutron_index].target);
-	std::string material_tmp= Geometry.subspaces[Bank[neutron_index].target[0]].printCellName(Bank[neutron_index].target[0]);
-	
+	Bank[neutron_index].TLE.back().target[0] = Bank[neutron_index].target[0];
+	Bank[neutron_index].TLE.back().target[1] = Bank[neutron_index].target[1];
+	std::string material_tmp= Geometry.subspaces[Bank[neutron_index].target[0]].printCellName(Bank[neutron_index].target[1]);
 	//Escaped neutrons are dead
 	if (material_tmp == "Outside")
 	{
 		Bank[neutron_index].died = true;
 		Bank[neutron_index].cause_of_death = 0;
+		std::pair <int, int> tmp_pair;
+		Bank[neutron_index].whwh.push_back(tmp_pair);
+		Bank[neutron_index].whwh.back().first = 0;
+		Bank[neutron_index].whwh.back().second = 0;
+		Bank[neutron_index].TLE.back().reaction_type = 0;
 		return;
 	}
 
@@ -941,12 +953,15 @@ void NData::FindNucleusGeometry(int neutron_index)
 		double epsilon = 1e-8;
 		Bank[neutron_index].path_length += (track_length_to_border + epsilon);
 		Bank[neutron_index].time += track_length_to_border / V;
+		Bank[neutron_index].TLE.back().path_length = track_length_to_border;
+		Bank[neutron_index].TLE.back().reaction_type = 1;
 		MoveNeutron(neutron_index, track_length_to_border);
 		return;
 	}
 	
 	Bank[neutron_index].path_length += track_length;
 	Bank[neutron_index].time += track_length / V;
+	Bank[neutron_index].TLE.back().path_length = track_length;
 	MoveNeutron(neutron_index, track_length);
 
 	std::vector<double> Rates;
@@ -966,6 +981,11 @@ void NData::FindNucleusGeometry(int neutron_index)
 	{
 		if (choosyboi < Rates[i])
 		{
+			std::pair <int, int> tmp_pair;
+			Bank[neutron_index].whwh.push_back(tmp_pair);
+			Bank[neutron_index].whwh.back().first = mixes[index].components[i - 1].Material_index+1;
+			Bank[neutron_index].TLE.back().material_index = mixes[index].components[i - 1].Material_index;
+			Bank[neutron_index].TLE.back().neutron_dens = mixes[index].components[i - 1].rate;
 			FindReaction(mixes[index].components[i - 1].Material_index, neutron_index);
 			return;
 		}
@@ -979,7 +999,7 @@ void NData::PopulateBank(int Amount, double startingE)
 	Neutron tmp;
 	tmp.E.push_back(startingE);
 	double dir[] = { 0,0,0 };
-	int tmp_pos[] = { 0,0,0 };
+	int tmp_pos[] = { 0,0,25};
 	tmp.Pos[0] = tmp_pos[0];
 	tmp.Pos[1] = tmp_pos[1];
 	tmp.Pos[2] = tmp_pos[2];
@@ -1019,6 +1039,14 @@ void NData::IsotropicDirection(double * dir)
 
 void NData::MoveNeutron(int neutron_index, double length)
 {
+	std::vector <double> old_pos(3);
+
+	old_pos[0] = Bank[neutron_index].Pos[0];
+	old_pos[1] = Bank[neutron_index].Pos[1];
+	old_pos[2] = Bank[neutron_index].Pos[2];
+
+	Bank[neutron_index].Position_history.push_back(old_pos);
+
 	Bank[neutron_index].Pos[0] = Bank[neutron_index].Pos[0] + (length * Bank[neutron_index].Dir[0]);
 	Bank[neutron_index].Pos[1] = Bank[neutron_index].Pos[1] + (length * Bank[neutron_index].Dir[1]);
 	Bank[neutron_index].Pos[2] = Bank[neutron_index].Pos[2] + (length * Bank[neutron_index].Dir[2]);
@@ -1759,21 +1787,219 @@ void NData::TestGeo(int N)
 	return;
 }
 
-void NData::ExternalSource()
+void NData::Tally() 
 {
-	int M = 10;
-	int N = 100;
-
+	int M = TLE_M.size();
+	std::vector <std::vector <std::vector <Track_length> > > TLE_sorted_bycells(M);
 	
+	if (TLE_M[0].size() == 0)
+	{
+		return;
+	}
+
+	int N = TLE_M[0].size();
+	for (int m= 0; m < M; m++)
+	{
+		std::vector <std::vector <Track_length> > TLE_cell_collisions;
+		for (int i = 0; i < Geometry.subspaces[0].cells.size(); i++)
+		{
+			std::vector <Track_length> one_cell_collisions;
+			for (int j = 0; j < TLE_M[m].size(); j++)
+			{
+				for (int k = 0; k < TLE_M[m][j].size(); k++)
+				{
+					if (TLE_M[m][j][k].target[1] == i)
+					{
+						one_cell_collisions.push_back(TLE_M[m][j][k]);
+					}
+				}
+			}
+			TLE_cell_collisions.push_back(one_cell_collisions);
+		}
+		TLE_sorted_bycells[m] = TLE_cell_collisions;
+	}
+
+	Analog(TLE_sorted_bycells, N);
+	TrackLengthEstimator(TLE_sorted_bycells, N);
+	return;
+
+}
+
+void NData::Analog(std::vector <std::vector <std::vector <Track_length> > > data, int N)
+{
+	std::string logfile;
+	logfile =  "External_source_Analog.txt";
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+	
+	if (data[0].size() == 0)
+	{
+		log << "No Data Dummy";
+		return;
+	}
+
+	std::vector <int> reaction_numbers;
+	reaction_numbers.push_back(0);
+	
+	reaction_numbers.push_back(2);
+	for (int i = 51; i < 91; i++)
+	{
+		reaction_numbers.push_back(i);
+	}
+	for (int i = 102; i < 108; i++)
+	{
+		reaction_numbers.push_back(i);
+	}
+
+	int Cell_count = data[0].size();
+
+	std::vector <std::vector <double> > Cells_reactions_mean(Cell_count);
+	std::vector <std::vector <double> > Cells_reactions_stdDiv(Cell_count);
+	for (int i = 0; i < Cell_count; i++)
+	{
+		std::vector <double> one_cell_reactions_means(reaction_numbers.size());
+		std::vector <double> one_cell_reactions_stdDiv(reaction_numbers.size());
+		for (int j = 0; j < reaction_numbers.size(); j++)
+		{
+			std::vector <double> Counts(data.size());
+			for (int m = 0; m < data.size(); m++)
+			{
+				double count = 0.0;
+				for (int n = 0; n < data[m][i].size(); n++)
+				{
+					if (data[m][i][n].reaction_type == reaction_numbers[j])
+					{
+						count++;
+					}
+				}
+			
+				Counts[m] = count;
+			}
+			one_cell_reactions_means[j] = getMean(Counts);
+			one_cell_reactions_stdDiv[j] = getStddiv(Counts, one_cell_reactions_means[j]);
+		}
+		Cells_reactions_mean[i] = one_cell_reactions_means;
+		Cells_reactions_stdDiv[i] = one_cell_reactions_stdDiv;
+	}
+
+	log << "External source test \n All scores normalized by the ellastic reaction in water. \n \n";
+
+	for (int i = 0; i < Cell_count; i++)
+	{
+		log << "Cell: " << Geometry.subspaces[0].printCellName(i) << "\n";
+		for (int j = 0; j < Cells_reactions_mean[i].size(); j++)
+		{
+			if (Cells_reactions_mean[i][j] > 1E-10)
+			{
+				log << "Reaction: " << reaction_numbers[j] << "\n";
+				log << "Mean count: " << Cells_reactions_mean[i][j]/ Cells_reactions_mean[1][1] << " with a StdDiv of: ";
+				log << Cells_reactions_stdDiv[i][j] / Cells_reactions_mean[1][1] << "\n";
+			}
+		}
+		log << "\n";
+	}
+	
+	return;
+}
+
+void NData::TrackLengthEstimator(std::vector <std::vector <std::vector <Track_length> > > data, int N)
+{
+
+	std::string logfile;
+	logfile = "External_source_TLE.txt";
+	std::ofstream log;
+	log.open(logfile, std::ios::out | std::ios::trunc);
+
+	if (data[0].size() == 0)
+	{
+		log << "No Data Dummy";
+		return;
+	}
+
+	std::vector <int> reaction_numbers;
+	
+	reaction_numbers.push_back(2);
+	for (int i = 51; i < 91; i++)
+	{
+		reaction_numbers.push_back(i);
+	}
+	for (int i = 102; i < 108; i++)
+	{
+		reaction_numbers.push_back(i);
+	}
+
+	int Cell_count = data[0].size();
+
+	std::vector <std::vector <double> > Cells_reactions_mean(Cell_count);
+	std::vector <std::vector <double> > Cells_reactions_stdDiv(Cell_count);
+	for (int i = 0; i < Cell_count; i++)
+	{
+		std::vector <double> one_cell_reactions_means(reaction_numbers.size());
+		std::vector <double> one_cell_reactions_stdDiv(reaction_numbers.size());
+		for (int j = 0; j < reaction_numbers.size(); j++)
+		{
+			std::vector <double> Counts(data.size());
+			for (int m = 0; m < data.size(); m++)
+			{
+				double count = 0.0;
+				for (int n = 0; n < data[m][i].size(); n++)
+				{
+					if (data[m][i][n].reaction_type == reaction_numbers[j])
+					{
+						count += data[m][i][n].macrocross * data[m][i][n].path_length;
+					}
+				}
+
+				Counts[m] = count;
+			}
+			one_cell_reactions_means[j] = getMean(Counts);
+			one_cell_reactions_stdDiv[j] = getStddiv(Counts, one_cell_reactions_means[j]);
+		}
+		Cells_reactions_mean[i] = one_cell_reactions_means;
+		Cells_reactions_stdDiv[i] = one_cell_reactions_stdDiv;
+	}
+
+	log << "External source test \n All scores normalized by ellastic collision in the water \n \n";
+
+	for (int i = 0; i < Cell_count; i++)
+	{
+		log << "Cell: " << Geometry.subspaces[0].printCellName(i) << "\n";
+		for (int j = 0; j < Cells_reactions_mean[i].size(); j++)
+		{
+			if (Cells_reactions_mean[i][j] > 1E-10)
+			{
+				log << "Reaction: " << reaction_numbers[j] << "\n";
+				log << "Mean count: " << Cells_reactions_mean[i][j] / Cells_reactions_mean[1][0] << " with a StdDiv of: ";
+				log << Cells_reactions_stdDiv[i][j] / Cells_reactions_mean[1][0] << "\n";
+			}
+		}
+		log << "\n";
+	}
+
+}
+
+
+
+void NData::ExternalSource(int N, int M)
+{
+	int generations = 5;
+
+	std::vector <std::vector <double> > Childrens_means(M);
+	std::vector <std::vector <int> > Nucleus_Reactions(M);
+	std::vector <std::vector <int> > Neutrons_per_gen(M);
+
 	for (int k = 0; k < M; k++)
 	{
+		std::vector <double> children_gen_means(generations, 0);
+		std::vector <int> neutrons_per_gen(generations, 0);
+
 		PopulateBank(N, 1);
 		int Guard_out = 0;
 		do
 		{
 
-			#pragma omp parallel for schedule(dynamic,1)
-			for (int i = 0; i < N; i++)
+#pragma omp parallel for schedule(dynamic,1)
+			for (int i = 0; i < Bank.size(); i++)
 			{
 				int Guard = 0;
 				while (!Bank[i].died && Guard < 1000)
@@ -1782,15 +2008,58 @@ void NData::ExternalSource()
 					Guard++;
 				}
 			}
+
 			Teller();
 			Guard_out++;
 			if (Bank.size() == 0)
 			{
 				break;
 			}
-		} while (Guard_out < 5);
+		} while (Guard_out < generations);
+
+		for (int k = 0; k < generations; k++)
+		{
+			std::vector <double> children;
+
+			for (int i = 0; i < Graveyard.size(); i++)
+			{
+				if (Graveyard[i].generation == k)
+				{
+					children.push_back(Graveyard[i].children);
+				}
+			}
+			if (children.size())
+			{
+				children_gen_means[k] = getMean(children);
+			}
+		}
+		for (int i = 0; i < Graveyard.size(); i++)
+		{
+			for (int j = 0; j < generations; j++)
+			{
+				if (Graveyard[i].generation == j)
+				{
+					neutrons_per_gen[j]++;
+				}
+			}
+		}
+		Neutrons_per_gen[k] = neutrons_per_gen;
+		std::cout << k << "\n";
 		EmptyBank();
+		
+		std::vector <std::vector <Track_length> > TLE_thisN;
+
+		for (int i = 0; i < Graveyard.size(); i++)
+		{
+			TLE_thisN.push_back(Graveyard[i].TLE);
+		}
+		TLE_M.push_back(TLE_thisN);
+
+		EmptyGraveyard();
 	}
+
+	Tally();
+
 
 	return;
 
