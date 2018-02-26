@@ -80,7 +80,7 @@ public:
 	void readlist(std::string filename);
 	void BuildComps(std::string filename);
 	void AddGeom(Universe Geo, int top_index);
-	void CalcNuclearDensities();
+
 	double EtoCrossUnknown(std::string Symbol, int MTn, double E);
 	double EtoCross(int material_index, int mt_index, double E);
 	double TotCross(int material_index, double E);

@@ -23,23 +23,27 @@ void testInputSubspace(Input);
 
 int main()
 {
+	//Build geometry
 	string filelocation = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\input_3.txt";
 	Input input_data;
 	input_data.fileReader(filelocation);
 	Universe uni;
 	uni.buildSubspaces(input_data);
-	
-
-	
+	//Import nuclear data
 	string log = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\listofmaterial.txt";
 	NData Nucleardata;
 	Nucleardata.readlist(log);
 	string comps = "C:\\Users\\Magnus\\source\\repos\\Simple_MonteCarlo\\Simple MonteCarlo\\Simple MonteCarlo\\composits_2.txt";
 	Nucleardata.BuildComps(comps);
+	//Add geometry to nuclear data
 	Nucleardata.AddGeom(uni,0);
-	Nucleardata.ExternalSource(500, 100);
-	
 
+	/*
+	//Example calculations
+	Nucleardata.ExternalSource(500, 100);
+	uni.calculateVolumes(0);
+	uni.plotSlice(0, 0);
+	*/
 	return 0;
 }
 
@@ -146,35 +150,3 @@ void testInputSubspace(Input input_data)
 	return;
 }
 
-//testInputCompSurf(input_data);
-//testInputCell(input_data); 
-//testInputSubspace(input_data);
-
-//Universe uni;
-//uni.buildSubspaces(input_data);
-//uni.calculateVolumes(0);
-//uni.calculateVolumes(1);
-//uni.calculateVolumes(2);
-//uni.plotSlice(0.0, 0);
-
-//testRotations();
-
-//uni.calculateVolumes(1);
-
-/*
-double direction[3];
-direction[0] = 1;
-direction[1] = 0;
-direction[2] = 0;
-*/
-
-//double point[] = { 1, 0, 0.0 };
-//double test = uni.subspaces[0].complex_surfs[1].distanceComplexSurface(point, direction);
-//double tmp = uni.subspaces[0].y_r;
-//std:vector <double> vittu = uni.lineCalc(0);
-//int target[2];
-//uni.CellInUniverse(point, 1, target);
-
-//int test;
-//uni.CalculateLineVolume(0);
-//uni.plotSlice(0,1);

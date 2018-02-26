@@ -19,6 +19,7 @@ NData::~NData()
 
 void NData::readdatafile(std::string filename , int it)
 {
+	//Function used to read the nuclear cross section data.
 	materialdata some_material;
 	
 	std::string line;
@@ -115,6 +116,7 @@ void NData::readdatafile(std::string filename , int it)
 
 void NData::readlist(std::string filename)
 {
+	//All needed material data fiels should be provided in the list "filename" to speed up the data input
 	std::string line;
 	std::ifstream input(filename);
 
@@ -138,6 +140,7 @@ void NData::readlist(std::string filename)
 
 void NData::BuildComps(std::string filename)
 {
+	//List of material mixes and their ratios. The ratios should include nucleus density in cases that require it.
 	std::string line;
 	std::ifstream input(filename);
 
@@ -194,10 +197,7 @@ void NData::AddGeom(Universe Geo, int top_index)
 	return;
 }
 
-void NData::CalcNuclearDensities()
-{
-	
-}
+//Functions realted to calculating and printing cross sections.
 
 double NData::EtoCrossUnknown(std::string Symbol, int MTn, double E)
 {
@@ -504,6 +504,8 @@ void NData::PrintLogLogTotalComp(std::string Symbol)
 
 }
 
+//Reaction functiuns
+
 void NData::ElasticReaction(int Neutron_index, int material_index)
 {
 	double E = Bank[Neutron_index].E.back();
@@ -730,6 +732,8 @@ void NData::CaptureReaction(int Neutron_index)
 	return;
 }
 
+//Sampling functions
+
 double NData::SampleMaxwell(double T_ev)
 {
 	std::random_device rd;
@@ -840,7 +844,7 @@ void NData::FindReaction(int Material_index, int neutron_index)
 
 void NData::FindNucleus(int Mix_nr, int neutron_index)
 {
-
+	//Find Nucleus function for homogenous inifinite material.
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
@@ -900,6 +904,7 @@ void NData::FindNucleus(int Mix_nr, int neutron_index)
 
 void NData::FindNucleusGeometry(int neutron_index)
 {
+	//Nucleus smapling function for heterogenous materials and gemoetry
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
@@ -994,6 +999,41 @@ void NData::FindNucleusGeometry(int neutron_index)
 
 }
 
+void NData::IsotropicDirection(double * dir)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
+
+	double omega = dis(gen) * 2 - 1;
+	double phi = dis(gen) * 2 * 3.14159265359;
+	
+	dir[0] = sqrt(1 - pow(omega, 2))*cos(phi);
+	dir[1] = sqrt(1 - pow(omega, 2))*sin(phi);
+	dir[2] = omega;
+
+	return;
+}
+
+void NData::MoveNeutron(int neutron_index, double length)
+{
+	std::vector <double> old_pos(3);
+
+	old_pos[0] = Bank[neutron_index].Pos[0];
+	old_pos[1] = Bank[neutron_index].Pos[1];
+	old_pos[2] = Bank[neutron_index].Pos[2];
+
+	Bank[neutron_index].Position_history.push_back(old_pos);
+
+	Bank[neutron_index].Pos[0] = Bank[neutron_index].Pos[0] + (length * Bank[neutron_index].Dir[0]);
+	Bank[neutron_index].Pos[1] = Bank[neutron_index].Pos[1] + (length * Bank[neutron_index].Dir[1]);
+	Bank[neutron_index].Pos[2] = Bank[neutron_index].Pos[2] + (length * Bank[neutron_index].Dir[2]);
+	
+	return;
+}
+
+//Neutron Bookkeeping functions
+
 void NData::PopulateBank(int Amount, double startingE)
 {
 	Neutron tmp;
@@ -1017,40 +1057,6 @@ void NData::PopulateBank(int Amount, double startingE)
 		tmp.Dir[2] = dir[2];
 		Bank.push_back(tmp);
 	}
-	return;
-}
-
-void NData::IsotropicDirection(double * dir)
-{
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(0, 1);
-
-	double omega = dis(gen) * 2 - 1;
-	double phi = dis(gen) * 2 * 3.14159265359;
-	
-	dir[0] = sqrt(1 - pow(omega, 2))*cos(phi);
-	dir[1] = sqrt(1 - pow(omega, 2))*sin(phi);
-	dir[2] = omega;
-
-	return;
-}
-
-
-void NData::MoveNeutron(int neutron_index, double length)
-{
-	std::vector <double> old_pos(3);
-
-	old_pos[0] = Bank[neutron_index].Pos[0];
-	old_pos[1] = Bank[neutron_index].Pos[1];
-	old_pos[2] = Bank[neutron_index].Pos[2];
-
-	Bank[neutron_index].Position_history.push_back(old_pos);
-
-	Bank[neutron_index].Pos[0] = Bank[neutron_index].Pos[0] + (length * Bank[neutron_index].Dir[0]);
-	Bank[neutron_index].Pos[1] = Bank[neutron_index].Pos[1] + (length * Bank[neutron_index].Dir[1]);
-	Bank[neutron_index].Pos[2] = Bank[neutron_index].Pos[2] + (length * Bank[neutron_index].Dir[2]);
-	
 	return;
 }
 
@@ -1084,6 +1090,8 @@ void NData::EmptyGraveyard()
 {
 	Graveyard.erase(Graveyard.begin(), Graveyard.end());
 }
+
+//Calculation and tally functions.
 
 void NData::SlowdownPlot(int N, int index_comp) 
 {
@@ -1977,8 +1985,6 @@ void NData::TrackLengthEstimator(std::vector <std::vector <std::vector <Track_le
 	}
 
 }
-
-
 
 void NData::ExternalSource(int N, int M)
 {
